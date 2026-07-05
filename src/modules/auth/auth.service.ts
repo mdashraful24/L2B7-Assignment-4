@@ -8,7 +8,7 @@ import { jwtUtils } from '../../utils/jwt';
 import { JwtPayload, SignOptions } from 'jsonwebtoken';
 
 const registerUserIntoDB = async (payload: IUser) => {
-    const { name, email, password, phone, role, address } = payload;
+    const { name, email, password, phone, role, address, bio, skills, experience, hourlyRate, description, location } = payload;
 
     // Prevent public admin registration
     if (role === "ADMIN") {
@@ -28,16 +28,42 @@ const registerUserIntoDB = async (payload: IUser) => {
 
     const hashPassword = await bcrypt.hash(password, Number(config.security.bcryptSaltRounds));
 
-    const createUser = await prisma.user.create({
-        data: {
-            name,
-            email,
-            password: hashPassword,
-            phone,
-            role,
-            address,
-        }
-    });
+    // Create user with or without technician profile based on role
+    let createUser;
+
+    if (role === "TECHNICIAN") {
+        createUser = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashPassword,
+                phone,
+                address,
+                role,
+                technicianProfile: {
+                    create: {
+                        bio,
+                        skills,
+                        experience,
+                        hourlyRate,
+                        description,
+                        location,
+                    },
+                },
+            },
+        });
+    } else {
+        createUser = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashPassword,
+                phone,
+                address,
+                role,
+            },
+        });
+    }
 
     const user = await prisma.user.findUnique({
         where: {
@@ -47,6 +73,9 @@ const registerUserIntoDB = async (payload: IUser) => {
         omit: {
             password: true
         },
+        include: {
+            technicianProfile: true
+        }
     });
 
     return user;
@@ -135,6 +164,9 @@ const getMeFromDB = async (userId: string) => {
         omit: {
             password: true
         },
+        include: {
+            technicianProfile: true
+        }
     });
 
     return user;

@@ -7,6 +7,7 @@ import { authRoutes } from "./modules/auth/auth.route";
 import { sendResponse } from "./utils/sendResponse";
 import globalErrorHandler from './middlewares/globalErrorHandler';
 import { routeNotFound } from './middlewares/routeNotFound';
+import { technicianRoutes } from './modules/technician/tech.route';
 
 const app: Application = express();
 
@@ -34,6 +35,7 @@ app.get("/", (req: Request, res: Response) => {
 
 
 app.use("/api/auth/", authRoutes);
+app.use("/api/technicians", technicianRoutes);
 
 
 // Route Not Found

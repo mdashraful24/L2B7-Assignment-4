@@ -5,9 +5,16 @@ export interface IUser {
     email: string;
     password: string;
     role: UserRole;
+    phone?: string;
+    address?: string;
     status: UserStatus;
-    phone?: string | null;
-    address?: string | null;
+
+    bio?: string;
+    skills?: string[];
+    experience?: string;
+    hourlyRate?: number;
+    description?: string;
+    location?: string;
 }
 
 export interface ILoginUser {

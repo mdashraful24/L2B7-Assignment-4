@@ -1,0 +1,28 @@
+model Payment {
+  id String @id @default(uuid())
+
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  transactionId String @unique
+  amount        Float
+  currency      String @default("usd")
+
+  provider PaymentProvider
+  status   PaymentStatus   @default(PENDING)
+
+  paymentIntentId String?
+  ClientSecret    String?
+  sessionId       String?
+  metadata        Json?
+  paidAt          DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@map("payments")
+}
