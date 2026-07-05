@@ -3,3 +3,8 @@ enum UserRole {
   TECHNICIAN
   ADMIN
 }
+
+enum UserStatus {
+  ACTIVE
+  BANNED
+}

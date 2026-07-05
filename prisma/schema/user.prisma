@@ -1,14 +1,14 @@
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
+  id        String     @id @default(uuid())
   name      String
+  email     String     @unique
+  password  String
   role      UserRole
-  isBanned  Boolean  @default(false)
+  status    UserStatus @default(ACTIVE)
   phone     String?
   address   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 
   @@map("users")
 }

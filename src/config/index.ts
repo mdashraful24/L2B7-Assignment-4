@@ -9,6 +9,7 @@ const config = {
     databaseUrl: process.env.DATABASE_URL,
     port: process.env.PORT,
     appUrl: process.env.APP_URL,
+    projectAuthor: process.env.PROJECT_AUTHOR,
 
     security: {
         bcryptSaltRounds: process.env.BCRYPT_SALT_ROUNDS,

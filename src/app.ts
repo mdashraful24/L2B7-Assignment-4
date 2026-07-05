@@ -1,8 +1,12 @@
+import httpStatus from 'http-status';
 import cookieParser from "cookie-parser";
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import config from "./config";
 import { authRoutes } from "./modules/auth/auth.route";
+import { sendResponse } from "./utils/sendResponse";
+import globalErrorHandler from './middlewares/globalErrorHandler';
+import { routeNotFound } from './middlewares/routeNotFound';
 
 const app: Application = express();
 
@@ -15,12 +19,27 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// All Routes
+// Start Routes
 app.get("/", (req: Request, res: Response) => {
-    res.send("Hello World!");
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Welcome to the FixItNow API. The server is running successfully.",
+        data: {
+            status: "Healthy",
+            author: config.projectAuthor,
+        },
+    });
 });
+
 
 app.use("/api/auth/", authRoutes);
 
+
+// Route Not Found
+app.use(routeNotFound);
+
+// Global Error Handling Middleware
+app.use(globalErrorHandler);
 
 export default app;
