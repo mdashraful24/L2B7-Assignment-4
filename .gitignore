@@ -4,3 +4,5 @@ dist
 generated
 
 /generated/prisma
+
+README.md
