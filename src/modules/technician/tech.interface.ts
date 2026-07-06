@@ -1,3 +1,19 @@
+export interface IUpdateTechnicianProfile {
+    name?: string;
+    email?: string;
+    password?: string;
+
+    phone?: string;
+    address?: string;
+
+    bio?: string;
+    skills?: string[];
+    experience?: string;
+    hourlyRate?: number;
+    description?: string;
+    location?: string;
+}
+
 export interface ITechnician {
     // Pagination
     page?: string;

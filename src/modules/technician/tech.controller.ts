@@ -39,8 +39,42 @@ const singleTechnician = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const updateTechProfile = catchAsyncUtil(async(req, res)=>{
+    const technicianId = req.user?.id as string
+
+    const result = await technicianService.updateProfileFromDB(technicianId, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Technician profile updated successfully!",
+        data: result
+    });
+});
+
+const createAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
+
+});
+
+const updateAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
+
+});
+
+const techniciansBookings = catchAsyncUtil(async(req, res)=>{
+
+});
+
+const updateBookingStatus = catchAsyncUtil(async(req, res)=>{
+
+});
+
 
 export const technicianController = {
     allTechnician,
-    singleTechnician
+    singleTechnician,
+    updateTechProfile,
+    createAvailabilitySlot,
+    updateAvailabilitySlot,
+    techniciansBookings,
+    updateBookingStatus
 };

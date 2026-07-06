@@ -1,8 +1,11 @@
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
-import { ITechnician } from "./tech.interface";
+import { ITechnician, IUpdateTechnicianProfile } from "./tech.interface";
 import { TechnicianProfileWhereInput } from "../../../generated/prisma/models";
 import { SelfError } from "../../utils/errorResponse";
+import bcrypt from 'bcryptjs';
+import config from '../../config';
+import { UserRole } from '../../../generated/prisma/enums';
 
 const getAllTechnician = async (query: ITechnician) => {
     const limit = query.limit ? Number(query.limit) : 10;
@@ -160,7 +163,7 @@ const getSingleTechnician = async (techId: string) => {
             services: true,
             availability: {
                 where: {
-                    isAvailable: true // Only show available slots
+                    isAvailable: true
                 },
                 orderBy: [
                     {
@@ -198,21 +201,119 @@ const getSingleTechnician = async (techId: string) => {
     };
 
     // Format availability slots with day names
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const formattedAvailability = technician.availability.map(slot => ({
-        ...slot,
-        dayName: dayNames[slot.dayOfWeek]
-    }));
+    // const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    // const formattedAvailability = technician.availability.map(slot => ({
+    //     ...slot,
+    //     dayName: dayNames[slot.dayOfWeek]
+    // }));
 
     return {
         ...technician,
-        availability: formattedAvailability,
+        // availability: formattedAvailability,
         reviewStats
     };
+};
+
+const updateProfileFromDB = async (technicianId: string, payload: IUpdateTechnicianProfile) => {
+    const technician = await prisma.user.findFirst({
+        where: {
+            id: technicianId,
+            role: UserRole.TECHNICIAN,
+        },
+        include: {
+            technicianProfile: true,
+        },
+    });
+
+    if (!technician) {
+        throw new SelfError("Technician not found", httpStatus.NOT_FOUND);
+    }
+
+    if (!technician.technicianProfile) {
+        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
+    }
+
+    const { name, email, password, phone, address, bio, skills, experience, hourlyRate, description, location } = payload;
+
+    if (email) {
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                email,
+                NOT: {
+                    id: technicianId,
+                },
+            },
+        });
+
+        if (existingUser) {
+            throw new SelfError(
+                "Email already exists",
+                httpStatus.CONFLICT
+            );
+        }
+    }
+
+    let hashedPassword: string | undefined;
+
+    if (password) {
+        hashedPassword = await bcrypt.hash(password, Number(config.security.bcryptSaltRounds));
+    }
+
+    const updatedProfile = await prisma.user.update({
+        where: {
+            id: technicianId,
+        },
+        data: {
+            name,
+            email,
+            password: hashedPassword,
+            phone,
+            address,
+            technicianProfile: {
+                update: {
+                    bio,
+                    skills,
+                    experience,
+                    hourlyRate,
+                    description,
+                    location,
+                },
+            },
+        },
+        omit: {
+            password: true,
+        },
+        include: {
+            technicianProfile: true,
+        },
+    });
+
+    return updatedProfile;
+};
+
+const createAvailabilitySlotIntoDB = async()=>{
+
+};
+
+const updateAvailabilitySlotFromDB = async()=>{
+
+};
+
+const getTechniciansBookings = async()=>{
+
+};
+
+const updateBookingStatusFromDB = async()=>{
+
 };
 
 
 export const technicianService = {
     getAllTechnician,
-    getSingleTechnician
+    getSingleTechnician,
+    updateProfileFromDB,
+    createAvailabilitySlotIntoDB,
+    updateAvailabilitySlotFromDB,
+    getTechniciansBookings,
+    updateBookingStatusFromDB
 };

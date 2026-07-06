@@ -1,8 +1,8 @@
 model AvailableSlot {
   id          String  @id @default(uuid())
-  dayOfWeek   Int // 0-6 (Sunday-Saturday)
-  startTime   String // HH:mm format
-  endTime     String // HH:mm format
+  dayOfWeek   String      // Sunday-Saturday
+  startTime   String      // HH:mm format
+  endTime     String      // HH:mm format
   isAvailable Boolean @default(true)
 
   technicianId String
