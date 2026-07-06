@@ -3,10 +3,9 @@ import { catchAsyncUtil } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { technicianService } from "./tech.service";
 import { SelfError } from '../../utils/errorResponse';
-import { ITechnician } from './tech.interface';
 
 const allTechnician = catchAsyncUtil(async (req, res) => {
-    const query = req.query as unknown as ITechnician;
+    const query = req.query;
 
     const result = await technicianService.getAllTechnician(query);
 

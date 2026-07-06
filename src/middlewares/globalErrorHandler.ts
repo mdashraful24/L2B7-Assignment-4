@@ -229,7 +229,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
         statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
         message: errorMessage,
         name: errorName,
-        error: error.stack,
+        errorDetails: error.stack,
         // errorCode: error.code || null,
     });
 };
