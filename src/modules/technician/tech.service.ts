@@ -1,11 +1,11 @@
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
-import { ITechnician, IUpdateTechnicianProfile } from "./tech.interface";
+import { IAvailabilitySlotPayload, IBookingStatusPayload, ITechnician, IUpdateAvailabilitySlotPayload, IUpdateTechnicianProfile } from "./tech.interface";
 import { TechnicianProfileWhereInput } from "../../../generated/prisma/models";
 import { SelfError } from "../../utils/errorResponse";
 import bcrypt from 'bcryptjs';
 import config from '../../config';
-import { UserRole } from '../../../generated/prisma/enums';
+import { BookingStatus, UserRole } from '../../../generated/prisma/enums';
 
 const getAllTechnician = async (query: ITechnician) => {
     const limit = query.limit ? Number(query.limit) : 10;
@@ -291,20 +291,183 @@ const updateProfileFromDB = async (technicianId: string, payload: IUpdateTechnic
     return updatedProfile;
 };
 
-const createAvailabilitySlotIntoDB = async()=>{
+const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvailabilitySlotPayload) => {
+    const { dayOfWeek, startTime, endTime, isAvailable } = payload;
 
+    if (!dayOfWeek || !startTime || !endTime) {
+        throw new SelfError("dayOfWeek, startTime and endTime are required", httpStatus.BAD_REQUEST);
+    }
+
+    const technicianProfile = await prisma.technicianProfile.findUnique({
+        where: {
+            userId: technicianId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    // console.log(technicianProfile);
+
+    if (!technicianProfile) {
+        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
+    }
+
+    const existingSlot = await prisma.availableSlot.findFirst({
+        where: {
+            technicianId: technicianProfile.id,
+            dayOfWeek,
+            startTime,
+            endTime,
+        },
+    });
+
+    if (existingSlot) {
+        throw new SelfError("Availability slot already exists", httpStatus.CONFLICT);
+    }
+
+    const availableTimeSlot = await prisma.availableSlot.create({
+        data: {
+            technicianId: technicianProfile.id,
+            dayOfWeek,
+            startTime,
+            endTime,
+            isAvailable: isAvailable ?? true,
+        },
+    });
+
+    return availableTimeSlot;
 };
 
-const updateAvailabilitySlotFromDB = async()=>{
+const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpdateAvailabilitySlotPayload) => {
+    const { id, dayOfWeek, startTime, endTime, isAvailable } = payload;
 
+    if (!id) {
+        throw new SelfError("Availability slot ID is required", httpStatus.BAD_REQUEST);
+    }
+
+    const technicianProfile = await prisma.technicianProfile.findUnique({
+        where: {
+            userId: technicianId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!technicianProfile) {
+        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
+    }
+
+    const existingSlot = await prisma.availableSlot.findFirst({
+        where: {
+            id: id,
+            technicianId: technicianProfile.id,
+        },
+    });
+
+    if (!existingSlot) {
+        throw new SelfError("Availability slot not found", httpStatus.NOT_FOUND);
+    }
+
+    const updatedAvailabilitySlot = prisma.availableSlot.update({
+        where: {
+            id: id,
+        },
+        data: {
+            dayOfWeek,
+            startTime,
+            endTime,
+            isAvailable
+        },
+    });
+
+    return updatedAvailabilitySlot;
 };
 
-const getTechniciansBookings = async()=>{
+const getTechniciansBookings = async (technicianId: string, query: IBookingStatusPayload) => {
+    const technicianProfile = await prisma.technicianProfile.findUnique({
+        where: {
+            userId: technicianId,
+        },
+        select: {
+            id: true,
+        },
+    });
 
+    if (!technicianProfile) {
+        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
+    }
+
+    const where = {
+        technicianId: technicianProfile.id,
+        ...(query.status ? { status: query.status as BookingStatus } : {}),
+    };
+
+    return prisma.booking.findMany({
+        where,
+        orderBy: {
+            createdAt: 'desc',
+        },
+        include: {
+            customer: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    phone: true,
+                },
+            },
+            service: true,
+        },
+    });
 };
 
-const updateBookingStatusFromDB = async()=>{
+const updateBookingStatusFromDB = async (technicianId: string, bookingId: string, payload: IBookingStatusPayload) => {
+    if (!bookingId) {
+        throw new SelfError("Booking ID is required", httpStatus.BAD_REQUEST);
+    }
 
+    if (!payload.status) {
+        throw new SelfError("Booking status is required", httpStatus.BAD_REQUEST);
+    }
+
+    const technicianProfile = await prisma.technicianProfile.findUnique({
+        where: {
+            userId: technicianId,
+        },
+        select: {
+            id: true,
+        },
+    });
+
+    if (!technicianProfile) {
+        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
+    }
+
+    const booking = await prisma.booking.findFirst({
+        where: {
+            id: bookingId,
+            technicianId: technicianProfile.id,
+        },
+    });
+
+    if (!booking) {
+        throw new SelfError("Booking not found", httpStatus.NOT_FOUND);
+    }
+
+    if (!Object.values(BookingStatus).includes(payload.status)) {
+        throw new SelfError("Invalid booking status", httpStatus.BAD_REQUEST);
+    }
+
+    return prisma.booking.update({
+        where: {
+            id: bookingId,
+        },
+        data: {
+            status: payload.status,
+        },
+    });
 };
 
 

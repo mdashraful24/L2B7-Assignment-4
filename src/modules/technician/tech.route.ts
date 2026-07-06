@@ -8,8 +8,6 @@ const router = Router();
 
 router.get("/", technicianController.allTechnician);
 
-router.get("/:id", technicianController.singleTechnician);
-
 router.put("/profile",
     authProtected(UserRole.TECHNICIAN),
     technicianController.updateTechProfile
@@ -23,18 +21,19 @@ router.post("/availability",
 router.put("/availability",
     authProtected(UserRole.TECHNICIAN),
     technicianController.updateAvailabilitySlot
-)
+);
 
 router.get("/bookings",
     authProtected(UserRole.TECHNICIAN),
     technicianController.techniciansBookings
-)
+);
 
-router.get("/bookings/:id",
+router.patch("/bookings/:id",
     authProtected(UserRole.TECHNICIAN),
     technicianController.updateBookingStatus
-)
+);
 
+router.get("/:id", technicianController.singleTechnician);
 
 
 export const technicianRoutes = router;

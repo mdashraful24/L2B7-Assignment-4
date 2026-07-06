@@ -53,19 +53,56 @@ const updateTechProfile = catchAsyncUtil(async(req, res)=>{
 });
 
 const createAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
+    const technicianId = req.user?.id as string;
 
+    const result = await technicianService.createAvailabilitySlotIntoDB(technicianId, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.CREATED,
+        success: true,
+        message: "Availability slot created successfully",
+        data: result
+    });
 });
 
 const updateAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
+    const technicianId = req.user?.id as string;
 
+    const result = await technicianService.updateAvailabilitySlotFromDB(technicianId, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Availability slot updated successfully",
+        data: result
+    });
 });
 
 const techniciansBookings = catchAsyncUtil(async(req, res)=>{
+    const technicianId = req.user?.id as string;
 
+    const result = await technicianService.getTechniciansBookings(technicianId, req.query);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Technician bookings retrieved successfully",
+        data: result
+    });
 });
 
 const updateBookingStatus = catchAsyncUtil(async(req, res)=>{
+    const technicianId = req.user?.id as string;
+    const { id } = req.params;
 
+    const result = await technicianService.updateBookingStatusFromDB(technicianId, id as string, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Booking status updated successfully",
+        data: result
+    });
 });
 
 

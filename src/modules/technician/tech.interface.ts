@@ -1,3 +1,5 @@
+import { BookingStatus } from "../../../generated/prisma/enums";
+
 export interface IUpdateTechnicianProfile {
     name?: string;
     email?: string;
@@ -29,4 +31,23 @@ export interface ITechnician {
     maxRating?: string;
     skills?: string;
     experience?: string;
+}
+
+export interface IAvailabilitySlotPayload {
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    isAvailable?: boolean;
+}
+
+export interface IUpdateAvailabilitySlotPayload {
+    id: string;
+    dayOfWeek?: string;
+    startTime?: string;
+    endTime?: string;
+    isAvailable?: boolean;
+}
+
+export interface IBookingStatusPayload {
+    status?: BookingStatus;
 }
