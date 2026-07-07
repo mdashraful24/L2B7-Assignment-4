@@ -35,19 +35,23 @@ export interface ITechnician {
 
 export interface IAvailabilitySlotPayload {
     dayOfWeek: string;
-    startTime: string;
-    endTime: string;
+    startAt: string;
+    endAt: string;
     isAvailable?: boolean;
 }
 
 export interface IUpdateAvailabilitySlotPayload {
     id: string;
     dayOfWeek?: string;
-    startTime?: string;
-    endTime?: string;
+    startAt?: string;
+    endAt?: string;
     isAvailable?: boolean;
 }
 
 export interface IBookingStatusPayload {
     status?: BookingStatus;
+}
+
+export interface IUpdateBookingStatus {
+    status: BookingStatus;
 }

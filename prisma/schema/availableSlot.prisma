@@ -1,16 +1,18 @@
 model AvailableSlot {
-  id          String  @id @default(uuid())
-  dayOfWeek   String      // Sunday-Saturday
-  startTime   String      // HH:mm format
-  endTime     String      // HH:mm format
-  isAvailable Boolean @default(true)
+  id          String   @id @default(uuid())
+  dayOfWeek   String // Sunday-Saturday
+  startAt     DateTime
+  endAt       DateTime
+  isAvailable Boolean  @default(true)
 
   technicianId String
   technician   TechnicianProfile @relation(fields: [technicianId], references: [id], onDelete: Cascade)
 
+  bookings Booking[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([technicianId, dayOfWeek, startTime, endTime])
+  @@unique([technicianId, dayOfWeek, startAt, endAt])
   @@map("available_slots")
 }

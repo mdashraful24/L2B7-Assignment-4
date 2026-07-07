@@ -1,5 +1,5 @@
 model TechnicianProfile {
-  id           String   @id @default(uuid())
+  id String @id @default(uuid())
 
   bio          String?
   skills       String[] @default([])
@@ -10,16 +10,16 @@ model TechnicianProfile {
   rating       Float    @default(0)
   totalReviews Int      @default(0)
 
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   availability AvailableSlot[]
-  bookings     Booking[] @relation("TechnicianBookings")
+  bookings     Booking[]       @relation("TechnicianBookings")
   reviews      Review[]
-  services      Service[]
+  services     Service[]
 
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("technician_profiles")
 }

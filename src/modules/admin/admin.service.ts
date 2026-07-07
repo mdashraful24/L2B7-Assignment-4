@@ -227,8 +227,8 @@ const getAllUsersFromDB = async (query: IGetUsersQuery) => {
                         select: {
                             id: true,
                             dayOfWeek: true,
-                            startTime: true,
-                            endTime: true,
+                            startAt: true,
+                            endAt: true,
                             isAvailable: true
                         }
                     }
@@ -332,7 +332,18 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
                     email: true,
                 },
             },
-            technician: true,
+            technician: {
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            status: true
+                        }
+                    }
+                }
+            },
             service: true,
         },
     });

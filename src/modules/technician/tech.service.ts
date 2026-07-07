@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
-import { IAvailabilitySlotPayload, IBookingStatusPayload, ITechnician, IUpdateAvailabilitySlotPayload, IUpdateTechnicianProfile } from "./tech.interface";
+import { IAvailabilitySlotPayload, IBookingStatusPayload, ITechnician, IUpdateAvailabilitySlotPayload, IUpdateBookingStatus, IUpdateTechnicianProfile } from "./tech.interface";
 import { TechnicianProfileWhereInput } from "../../../generated/prisma/models";
 import { SelfError } from "../../utils/errorResponse";
 import bcrypt from 'bcryptjs';
@@ -112,9 +112,9 @@ const getAllTechnician = async (query: ITechnician) => {
                     updatedAt: true
                 },
             },
-            services:{
-                include:{
-                    category:true
+            services: {
+                include: {
+                    category: true
                 }
             },
             availability: true
@@ -176,7 +176,7 @@ const getSingleTechnician = async (techId: string) => {
                         dayOfWeek: 'asc'
                     },
                     {
-                        startTime: 'asc'
+                        startAt: 'asc'
                     }
                 ]
             }
@@ -298,10 +298,10 @@ const updateProfileFromDB = async (technicianId: string, payload: IUpdateTechnic
 };
 
 const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvailabilitySlotPayload) => {
-    const { dayOfWeek, startTime, endTime, isAvailable } = payload;
+    const { dayOfWeek, startAt, endAt, isAvailable } = payload;
 
-    if (!dayOfWeek || !startTime || !endTime) {
-        throw new SelfError("dayOfWeek, startTime and endTime are required", httpStatus.BAD_REQUEST);
+    if (!dayOfWeek || !startAt || !endAt) {
+        throw new SelfError("dayOfWeek, startAt and endAt are required", httpStatus.BAD_REQUEST);
     }
 
     const technicianProfile = await prisma.technicianProfile.findUnique({
@@ -323,8 +323,8 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
         where: {
             technicianId: technicianProfile.id,
             dayOfWeek,
-            startTime,
-            endTime,
+            startAt: new Date(startAt),
+            endAt: new Date(endAt),
         },
     });
 
@@ -332,12 +332,21 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
         throw new SelfError("Availability slot already exists", httpStatus.CONFLICT);
     }
 
+    const actualDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][new Date(startAt).getUTCDay()];
+
+    if (dayOfWeek !== actualDay) {
+        throw new SelfError(
+            `Invalid dayOfWeek. The provided startAt date falls on ${actualDay}, but received ${dayOfWeek}.`,
+            httpStatus.BAD_REQUEST
+        );
+    }
+
     const availableTimeSlot = await prisma.availableSlot.create({
         data: {
             technicianId: technicianProfile.id,
             dayOfWeek,
-            startTime,
-            endTime,
+            startAt: new Date(startAt),
+            endAt: new Date(endAt),
             isAvailable: isAvailable ?? true,
         },
     });
@@ -346,7 +355,7 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
 };
 
 const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpdateAvailabilitySlotPayload) => {
-    const { id, dayOfWeek, startTime, endTime, isAvailable } = payload;
+    const { id, dayOfWeek, startAt, endAt, isAvailable } = payload;
 
     if (!id) {
         throw new SelfError("Availability slot ID is required", httpStatus.BAD_REQUEST);
@@ -382,8 +391,8 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
         },
         data: {
             dayOfWeek,
-            startTime,
-            endTime,
+            startAt: startAt ? new Date(startAt) : undefined,
+            endAt: endAt ? new Date(endAt) : undefined,
             isAvailable
         },
     });
@@ -402,16 +411,19 @@ const getTechniciansBookings = async (technicianId: string, query: IBookingStatu
     });
 
     if (!technicianProfile) {
-        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
+        throw new SelfError("", httpStatus.NOT_FOUND);
     }
 
-    const where = {
-        technicianId: technicianProfile.id,
-        ...(query.status ? { status: query.status as BookingStatus } : {}),
-    };
+    // const where = {
+    //     technicianId: technicianProfile.id,
+    //     ...(query.status ? { status: query.status as BookingStatus } : {}),
+    // };
 
-    return prisma.booking.findMany({
-        where,
+    const technicianBookings = await prisma.booking.findMany({
+        where: {
+            technicianId: technicianProfile.id,
+            status: query.status,
+        },
         orderBy: {
             createdAt: 'desc',
         },
@@ -425,11 +437,26 @@ const getTechniciansBookings = async (technicianId: string, query: IBookingStatu
                 },
             },
             service: true,
+            technician: {
+                select: {
+                    user: {
+                        select: {
+                            name: true,
+                            email: true,
+                            phone: true,
+                            address: true,
+                        },
+                    },
+                    location: true,
+                },
+            }
         },
     });
+
+    return technicianBookings;
 };
 
-const updateBookingStatusFromDB = async (technicianId: string, bookingId: string, payload: IBookingStatusPayload) => {
+const updateBookingStatusFromDB = async (technicianId: string, bookingId: string, payload: IUpdateBookingStatus) => {
     if (!bookingId) {
         throw new SelfError("Booking ID is required", httpStatus.BAD_REQUEST);
     }
@@ -463,11 +490,11 @@ const updateBookingStatusFromDB = async (technicianId: string, bookingId: string
     }
 
     const status = payload.status.toUpperCase() as BookingStatus;
-    if (!Object.values(BookingStatus).includes(payload.status)) {
+    if (!Object.values(BookingStatus).includes(status)) {
         throw new SelfError("Invalid booking status", httpStatus.BAD_REQUEST);
     }
 
-    return prisma.booking.update({
+    const updatedStatus = prisma.booking.update({
         where: {
             id: bookingId,
         },
@@ -475,6 +502,8 @@ const updateBookingStatusFromDB = async (technicianId: string, bookingId: string
             status,
         },
     });
+
+    return updatedStatus;
 };
 
 

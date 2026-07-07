@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsyncUtil } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { bookingServices } from "./booking.service";
+import { SelfError } from '../../utils/errorResponse';
 
 const createBooking = catchAsyncUtil(async (req, res) => {
     const customerId = req.user?.id as string;
@@ -18,9 +19,12 @@ const createBooking = catchAsyncUtil(async (req, res) => {
 
 const allBooking = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
-    const userRole = req.user?.role as string;
-    
-    const result = await bookingServices.getAllBooking(userId, userRole);
+
+    const result = await bookingServices.getAllBooking(userId);
+
+    if (result.length === 0) {
+        throw new SelfError("No bookings available", httpStatus.NOT_FOUND);
+    }
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -32,10 +36,9 @@ const allBooking = catchAsyncUtil(async (req, res) => {
 
 const singleBookingDetails = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
-    const userRole = req.user?.role as string;
     const { id } = req.params;
 
-    const result = await bookingServices.getSingleBooking(userId, userRole, id as string);
+    const result = await bookingServices.getSingleBooking(userId, id as string);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -47,10 +50,9 @@ const singleBookingDetails = catchAsyncUtil(async (req, res) => {
 
 const updateBooking = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
-    const userRole = req.user?.role as string;
     const { id } = req.params;
 
-    const result = await bookingServices.updateBookingFromDB(userId, userRole, id as string, req.body);
+    const result = await bookingServices.updateBookingFromDB(userId, id as string, req.body);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -62,10 +64,9 @@ const updateBooking = catchAsyncUtil(async (req, res) => {
 
 const deleteBooking = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
-    const userRole = req.user?.role as string;
     const { id } = req.params;
 
-    const result = await bookingServices.deleteBookingFromBD(userId, userRole, id as string);
+    const result = await bookingServices.deleteBookingFromBD(userId, id as string);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -80,5 +81,5 @@ export const bookingController = {
     allBooking,
     singleBookingDetails,
     updateBooking,
-    deleteBooking
+    deleteBooking,
 };

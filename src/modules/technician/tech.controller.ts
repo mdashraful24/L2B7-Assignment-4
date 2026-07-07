@@ -23,7 +23,7 @@ const allTechnician = catchAsyncUtil(async (req, res) => {
 });
 
 const singleTechnician = catchAsyncUtil(async (req, res) => {
-    const {id} = req.params;
+    const { id } = req.params;
 
     if (!id) {
         throw new SelfError("Technician ID is required", httpStatus.BAD_REQUEST);
@@ -39,7 +39,7 @@ const singleTechnician = catchAsyncUtil(async (req, res) => {
     });
 });
 
-const updateTechProfile = catchAsyncUtil(async(req, res)=>{
+const updateTechProfile = catchAsyncUtil(async (req, res) => {
     const technicianId = req.user?.id as string
 
     const result = await technicianService.updateProfileFromDB(technicianId, req.body);
@@ -52,7 +52,7 @@ const updateTechProfile = catchAsyncUtil(async(req, res)=>{
     });
 });
 
-const createAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
+const createAvailabilitySlot = catchAsyncUtil(async (req, res) => {
     const technicianId = req.user?.id as string;
 
     const result = await technicianService.createAvailabilitySlotIntoDB(technicianId, req.body);
@@ -65,7 +65,7 @@ const createAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
     });
 });
 
-const updateAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
+const updateAvailabilitySlot = catchAsyncUtil(async (req, res) => {
     const technicianId = req.user?.id as string;
 
     const result = await technicianService.updateAvailabilitySlotFromDB(technicianId, req.body);
@@ -78,10 +78,14 @@ const updateAvailabilitySlot = catchAsyncUtil(async(req, res)=>{
     });
 });
 
-const techniciansBookings = catchAsyncUtil(async(req, res)=>{
+const techniciansBookings = catchAsyncUtil(async (req, res) => {
     const technicianId = req.user?.id as string;
 
     const result = await technicianService.getTechniciansBookings(technicianId, req.query);
+
+    if (result.length === 0) {
+        throw new SelfError("Technicians bookings not found", httpStatus.NOT_FOUND);
+    }
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -91,7 +95,7 @@ const techniciansBookings = catchAsyncUtil(async(req, res)=>{
     });
 });
 
-const updateBookingStatus = catchAsyncUtil(async(req, res)=>{
+const updateBookingStatus = catchAsyncUtil(async (req, res) => {
     const technicianId = req.user?.id as string;
     const { id } = req.params;
 

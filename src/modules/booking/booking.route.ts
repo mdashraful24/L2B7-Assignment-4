@@ -5,7 +5,6 @@ import { bookingController } from "./booking.controller";
 
 const router = Router();
 
-
 router.post("/", 
     authProtected(UserRole.CUSTOMER),
     bookingController.createBooking

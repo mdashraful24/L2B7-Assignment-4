@@ -1,65 +1,134 @@
 import httpStatus from 'http-status';
 import { prisma } from '../../lib/prisma';
 import { SelfError } from '../../utils/errorResponse';
-import { BookingStatus } from '../../../generated/prisma/enums';
 import { ICreateBooking, IUpdateBooking } from './booking.interface';
 
 const createBookingIntoDB = async (customerId: string, payload: ICreateBooking) => {
-    const { technicianId, serviceId, scheduledDate, scheduledTime, address, notes, totalAmount } = payload;
+    const { technicianId, categoryId, serviceId, availableSlotId, scheduledAt, address, notes, totalAmount, } = payload;
 
-    if (!technicianId || !serviceId || !scheduledDate || !scheduledTime || !address || totalAmount === undefined) {
-        throw new SelfError('technicianId, serviceId, scheduledDate, scheduledTime, address and totalAmount are required', httpStatus.BAD_REQUEST);
+    if (!technicianId || !categoryId || !serviceId || !availableSlotId || !scheduledAt || !address || totalAmount === undefined) {
+        throw new SelfError("technicianId, categoryId, serviceId, availableSlotId, scheduledAt, address and totalAmount are required", httpStatus.BAD_REQUEST);
+    }
+
+    const bookingDateTime = new Date(scheduledAt);
+
+    if (Number.isNaN(bookingDateTime.getTime())) {
+        throw new SelfError("Invalid scheduledAt datetime", httpStatus.BAD_REQUEST);
     }
 
     const technician = await prisma.technicianProfile.findUnique({
-        where: { id: technicianId }
+        where: {
+            id: technicianId,
+        },
+        include: {
+            availability: {
+                where: {
+                    isAvailable: true,
+                },
+            },
+        },
     });
 
     if (!technician) {
-        throw new SelfError('Technician not found', httpStatus.NOT_FOUND);
+        throw new SelfError("Technician not found", httpStatus.NOT_FOUND);
     }
 
     const service = await prisma.service.findFirst({
         where: {
             id: serviceId,
-            technicianId
-        }
+            technicianId,
+            categoryId,
+            isAvailable: true,
+        },
+        include: {
+            category: true,
+        },
     });
 
     if (!service) {
-        throw new SelfError('Service not found for this technician', httpStatus.NOT_FOUND);
+        throw new SelfError("Service not found for the selected technician and category", httpStatus.NOT_FOUND);
     }
 
-    const createdBooking = await prisma.booking.create({
-        data: {
-            customerId,
+    const dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][bookingDateTime.getDay()];
+
+    const selectedSlot = await prisma.availableSlot.findFirst({
+        where: {
+            id: availableSlotId,
             technicianId,
-            serviceId,
-            scheduledDate: new Date(scheduledDate),
-            scheduledTime,
-            address,
-            notes,
-            totalAmount,
-            // status: BookingStatus.REQUESTED,
+            isAvailable: true,
         },
-        include: {
-            technician: true,
-            service: true,
-        },
+    });
+
+    if (!selectedSlot) {
+        throw new SelfError("Selected availability slot was not found or is no longer available", httpStatus.NOT_FOUND);
+    }
+
+    console.log({
+        scheduledAt: bookingDateTime,
+        bookingDay: dayOfWeek,
+        slotDay: selectedSlot.dayOfWeek,
+        startAt: selectedSlot.startAt,
+        endAt: selectedSlot.endAt,
+    });
+
+    if (selectedSlot.dayOfWeek !== dayOfWeek) {
+        throw new SelfError("Selected availability slot does not match the requested day", httpStatus.BAD_REQUEST);
+    }
+
+    const slotStart = new Date(selectedSlot.startAt);
+    const slotEnd = new Date(selectedSlot.endAt);
+
+    if (bookingDateTime < slotStart || bookingDateTime >= slotEnd) {
+        throw new SelfError("Selected availability slot does not match the requested time", httpStatus.BAD_REQUEST);
+    }
+
+    const existingBooking = await prisma.booking.findFirst({
+        where: { availableSlotId },
+    });
+
+    if (existingBooking) {
+        throw new SelfError("This availability slot is already booked", httpStatus.CONFLICT);
+    }
+
+    const createdBooking = await prisma.$transaction(async (tx) => {
+        const booked = await tx.booking.create({
+            data: {
+                customerId,
+                technicianId,
+                serviceId,
+                availableSlotId,
+                scheduledAt: bookingDateTime,
+                address,
+                notes,
+                totalAmount,
+            },
+            include: {
+                technician: true,
+                service: true,
+                availableSlot: true,
+            },
+        });
+
+        await tx.availableSlot.update({
+            where: {
+                id: availableSlotId,
+            },
+            data: {
+                isAvailable: false,
+            },
+        });
+
+        return booked;
     });
 
     return createdBooking;
 };
 
-const getAllBooking = async (userId: string, userRole: string) => {
-    const where = userRole === 'CUSTOMER'
-        ? { customerId: userId }
-        : userRole === 'TECHNICIAN'
-            ? { technician: { userId } }
-            : {};
-
+const getAllBooking = async (userId: string) => {
     const booking = await prisma.booking.findMany({
-        where,
+        where: {
+            customerId: userId
+        },
         orderBy: { createdAt: 'desc' },
         include: {
             customer: {
@@ -69,7 +138,17 @@ const getAllBooking = async (userId: string, userRole: string) => {
                     email: true
                 }
             },
-            technician: true,
+            technician: {
+                include: {
+                    user: {
+                        select: {
+                            name: true,
+                            email: true,
+                            phone: true,
+                        }
+                    }
+                }
+            },
             service: true,
         },
     });
@@ -77,9 +156,12 @@ const getAllBooking = async (userId: string, userRole: string) => {
     return booking;
 };
 
-const getSingleBooking = async (userId: string, userRole: string, bookingId: string) => {
+const getSingleBooking = async (userId: string, bookingId: string) => {
     const booking = await prisma.booking.findUnique({
-        where: { id: bookingId },
+        where: {
+            id: bookingId,
+            customerId: userId
+        },
         include: {
             customer: {
                 select: {
@@ -88,8 +170,26 @@ const getSingleBooking = async (userId: string, userRole: string, bookingId: str
                     email: true
                 }
             },
-            technician: true,
             service: true,
+            technician: {
+                include: {
+                    user: {
+                        select: {
+                            name: true,
+                            email: true,
+                            phone: true,
+                        }
+                    }
+                }
+            },
+            availableSlot: {
+                select: {
+                    dayOfWeek: true,
+                    startAt: true,
+                    endAt: true,
+                    isAvailable: true
+                }
+            }
         },
     });
 
@@ -97,41 +197,39 @@ const getSingleBooking = async (userId: string, userRole: string, bookingId: str
         throw new SelfError('Booking not found', httpStatus.NOT_FOUND);
     }
 
-    const isOwner = booking.customerId === userId || booking.technician.userId === userId;
-    if (userRole !== 'ADMIN' && !isOwner) {
-        throw new SelfError('Forbidden', httpStatus.FORBIDDEN);
-    }
-
     return booking;
 };
 
-const updateBookingFromDB = async (userId: string, userRole: string, bookingId: string, payload: IUpdateBooking) => {
-    const { status, scheduledDate, scheduledTime, address, notes, totalAmount } = payload;
+const updateBookingFromDB = async (userId: string, bookingId: string, payload: IUpdateBooking) => {
+    const { scheduledAt, address, notes, totalAmount, availableSlotId } = payload;
 
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId }
+    const booking = await prisma.booking.findFirst({
+        where: {
+            id: bookingId,
+            customerId: userId,
+        },
     });
 
     if (!booking) {
         throw new SelfError('Booking not found', httpStatus.NOT_FOUND);
     }
 
-    const isOwner = booking.customerId === userId || booking.technicianId === userId;
-    if (userRole !== 'ADMIN' && !isOwner) {
-        throw new SelfError('Forbidden', httpStatus.FORBIDDEN);
-    }
-
-    const updateData: Record<string, unknown> = {};
-    if (status) updateData.status = status as BookingStatus;
-    if (scheduledDate) updateData.scheduledDate = new Date(scheduledDate);
-    if (scheduledTime) updateData.scheduledTime = scheduledTime;
-    if (address) updateData.address = address;
-    if (notes !== undefined) updateData.notes = notes;
-    if (totalAmount !== undefined) updateData.totalAmount = totalAmount;
+    // data: {
+    //     scheduledAt: scheduledAt ? new Date(scheduledAt) : booking.scheduledAt,
+    //         address: address ?? booking.address,
+    //             notes: notes ?? booking.notes,
+    //                 totalAmount: totalAmount ?? booking.totalAmount,
+    //     },
 
     const updatedBookingData = await prisma.booking.update({
         where: { id: bookingId },
-        data: updateData,
+        data: {
+            scheduledAt: scheduledAt ? new Date(scheduledAt) : booking.scheduledAt,
+            address,
+            notes,
+            totalAmount,
+            availableSlotId
+        },
         include: {
             customer: {
                 select: {
@@ -140,30 +238,41 @@ const updateBookingFromDB = async (userId: string, userRole: string, bookingId: 
                     email: true
                 }
             },
-            technician: true,
             service: true,
+            technician: true,
         },
     });
 
     return updatedBookingData;
 };
 
-const deleteBookingFromBD = async (userId: string, userRole: string, bookingId: string) => {
-    const booking = await prisma.booking.findUnique({
-        where: { id: bookingId }
+const deleteBookingFromBD = async (userId: string, bookingId: string) => {
+    const booking = await prisma.booking.findFirst({
+        where: {
+            id: bookingId,
+            customerId: userId
+        }
     });
 
     if (!booking) {
         throw new SelfError('Booking not found', httpStatus.NOT_FOUND);
     }
 
-    const isOwner = booking.customerId === userId || booking.technicianId === userId;
-    if (userRole !== 'ADMIN' && !isOwner) {
-        throw new SelfError('Forbidden', httpStatus.FORBIDDEN);
+    if (booking.availableSlotId) {
+        await prisma.availableSlot.update({
+            where: {
+                id: booking.availableSlotId
+            },
+            data: {
+                isAvailable: true
+            },
+        });
     }
 
     await prisma.booking.delete({
-        where: { id: bookingId }
+        where: {
+            id: bookingId
+        }
     });
 
     return {

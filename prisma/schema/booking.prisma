@@ -10,15 +10,19 @@ model Booking {
   serviceId String
   service   Service @relation(fields: [serviceId], references: [id])
 
+  availableSlotId String?        @unique
+  availableSlot   AvailableSlot? @relation(fields: [availableSlotId], references: [id], onDelete: SetNull)
+
   status BookingStatus @default(REQUESTED)
 
-  scheduledDate DateTime
-  scheduledTime String
-  address       String
-  notes         String?
-  totalAmount   Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  scheduledAt DateTime
+
+  address     String
+  notes       String?
+  totalAmount Float
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   payment Payment?
   review  Review?
@@ -27,5 +31,6 @@ model Booking {
   @@index([technicianId])
   @@index([serviceId])
   @@index([status])
+  @@index([scheduledAt])
   @@map("bookings")
 }
