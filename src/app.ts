@@ -13,6 +13,7 @@ import { categoryRoutes } from './modules/category/category.route';
 import { adminRoutes } from './modules/admin/admin.route';
 import { bookingRoutes } from './modules/booking/booking.route';
 import { reviewRoutes } from './modules/review/review.route';
+import { paymentRoutes } from './modules/payment/payment.route';
 
 const app: Application = express();
 
@@ -21,6 +22,9 @@ app.use(cors({
     origin: config.appUrl,
     credentials: true
 }));
+
+app.post("/api/payments/webhook", express.raw({ type: 'application/json' }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -44,6 +48,7 @@ app.use("/api/technicians", technicianRoutes);
 app.use("/api/services", serviceRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/bookings", bookingRoutes);
+app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/admin", adminRoutes);
 
