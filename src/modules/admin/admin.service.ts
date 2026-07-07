@@ -1,9 +1,9 @@
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
 import { SelfError } from "../../utils/errorResponse";
-import { ICategoryQuery, ICreateCategory, IGetUsersQuery, IUpdateUserStatus } from "./admin.interface";
-import { UserRole, UserStatus } from '../../../generated/prisma/client';
-import { CategoryWhereInput, UserWhereInput } from '../../../generated/prisma/models';
+import { IBookingQuery, ICategoryQuery, ICreateCategory, IGetUsersQuery, IUpdateCategory, IUpdateUserStatus } from "./admin.interface";
+import { BookingStatus, UserRole, UserStatus } from '../../../generated/prisma/client';
+import { BookingWhereInput, CategoryWhereInput, UserWhereInput } from '../../../generated/prisma/models';
 
 const createServiceCategoryIntoDB = async (payload: ICreateCategory) => {
     const existingCategory = await prisma.category.findUnique({
@@ -25,134 +25,7 @@ const createServiceCategoryIntoDB = async (payload: ICreateCategory) => {
     return category;
 };
 
-const getAllUsersFromDB = async (query: IGetUsersQuery) => {
-    const limit = query.limit ? Number(query.limit) : 10;
-    const page = query.page ? Number(query.page) : 1;
-    const skip = (page - 1) * limit;
-
-    const sortBy = query.sortBy ? query.sortBy : "createdAt";
-    const sortOrder = query.sortOrder ? query.sortOrder : "desc";
-
-    const andConditions: UserWhereInput[] = [];
-
-    // Search by name or email
-    if (query.searchTerm) {
-        andConditions.push({
-            OR: [
-                {
-                    name: {
-                        contains: query.searchTerm,
-                        mode: "insensitive"
-                    },
-                },
-                {
-                    email: {
-                        contains: query.searchTerm,
-                        mode: "insensitive"
-                    },
-                },
-            ],
-        });
-    }
-
-    // Filter by role
-    if (query.role) {
-        andConditions.push({
-            role: query.role as UserRole,
-        });
-    }
-
-    // Filter by status
-    if (query.status) {
-        andConditions.push({
-            status: query.status,
-        });
-    }
-
-    // const where: Prisma.UserWhereInput =
-    //     andConditions.length > 0 ? { AND: andConditions } : {};
-
-    const users = await prisma.user.findMany({
-        where: {
-            AND: andConditions
-        },
-        skip,
-        take: limit,
-        orderBy: {
-            [sortBy]: sortOrder,
-        },
-        omit: {
-            password: true
-        },
-        include: {
-            technicianProfile: {
-                select: {
-                    bio: true,
-                    skills: true,
-                    experience: true,
-                    description: true,
-                    location: true,
-                    availability: {
-                        select:{
-                            isAvailable: true
-                        }
-                    }
-                }
-            }
-        }
-    });
-
-    const total = await prisma.user.count({
-        where: {
-            AND: andConditions
-        }
-    });
-
-    return {
-        data: users,
-        meta: {
-            page,
-            limit,
-            total,
-        },
-    };
-};
-
-const updateUserStatusIntoDB = async (id: string, payload: IUpdateUserStatus) => {
-    const normalizedStatus = payload.status.toUpperCase() as UserStatus;
-
-    if (!Object.values(UserStatus).includes(normalizedStatus)) {
-        throw new SelfError("Invalid user status. Allowed values are ACTIVE and BANNED.", httpStatus.BAD_REQUEST);
-    }
-
-    const user = await prisma.user.findUniqueOrThrow({
-        where: {
-            id
-        }
-    });
-
-    if (user.status === normalizedStatus) {
-        throw new SelfError(`User is already ${normalizedStatus.toLowerCase()}`, httpStatus.CONFLICT);
-    }
-
-    const updatedUser = await prisma.user.update({
-        where: { id },
-        data: {
-            status: payload.status
-        },
-        omit: {
-            password: true,
-        }
-    });
-
-    return updatedUser;
-};
-
-const getAllBookingsFromDB = async (query: any) => {
-
-};
-
-const getAllCategoriesFromDB = async (query: ICategoryQuery) => {
+const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
     const limit = query.limit ? Number(query.limit) : 10;
     const page = query.page ? Number(query.page) : 1;
     const skip = (page - 1) * limit;
@@ -203,11 +76,290 @@ const getAllCategoriesFromDB = async (query: ICategoryQuery) => {
     };
 };
 
+const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategory) => {
+    const { name, description, icon, isActive } = payload;
+
+    const category = await prisma.category.findUnique({
+        where: { id },
+    });
+
+    if (!category) {
+        throw new SelfError("Category not found", httpStatus.NOT_FOUND);
+    }
+
+    if (name && name.trim()) {
+        const existingCategory = await prisma.category.findFirst({
+            where: {
+                name: name,
+                NOT: { id }
+            },
+        });
+
+        if (existingCategory) {
+            throw new SelfError("Category already exists", httpStatus.CONFLICT);
+        }
+    }
+
+    const updatedCategory = await prisma.category.update({
+        where: { id },
+        data: {
+            name,
+            description,
+            icon,
+            isActive,
+        },
+    });
+
+    return updatedCategory;
+};
+
+const deleteServiceCategoriesFromDB = async (id: string) => {
+    const category = await prisma.category.findUnique({
+        where: { id },
+    });
+
+    if (!category) {
+        throw new SelfError("Category not found", httpStatus.NOT_FOUND);
+    }
+
+    if (!category.isActive) {
+        throw new SelfError("Category is already inactive", httpStatus.CONFLICT);
+    }
+
+    const deletedCategory = await prisma.category.update({
+        where: { id },
+        data: {
+            isActive: false,
+        },
+    });
+
+    return deletedCategory;
+};
+
+const getAllUsersFromDB = async (query: IGetUsersQuery) => {
+    const limit = query.limit ? Number(query.limit) : 10;
+    const page = query.page ? Number(query.page) : 1;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy ? query.sortBy : "createdAt";
+    const sortOrder = query.sortOrder ? query.sortOrder : "desc";
+
+    const andConditions: UserWhereInput[] = [];
+
+    // Search by name or email
+    if (query.searchTerm) {
+        andConditions.push({
+            OR: [
+                {
+                    name: {
+                        contains: query.searchTerm,
+                        mode: "insensitive"
+                    },
+                },
+                {
+                    email: {
+                        contains: query.searchTerm,
+                        mode: "insensitive"
+                    },
+                },
+            ],
+        });
+    }
+
+    // Filter by role
+    if (query.role) {
+        andConditions.push({
+            role: query.role as UserRole,
+        });
+    }
+
+    // Filter by status
+    if (query.status) {
+        andConditions.push({
+            status: query.status,
+        });
+    }
+
+    // Filter by isAvailability (1st start)
+    if (query.isAvailable !== undefined) {
+        andConditions.push({
+            technicianProfile: {
+                availability: {
+                    some: {
+                        isAvailable: query.isAvailable === "true",
+                    },
+                },
+            },
+        });
+    }
+    // (Then 2nd start)
+    const availabilityWhere =
+        query.isAvailable !== undefined
+            ? { isAvailable: query.isAvailable === "true" }
+            : undefined;
+
+    // const where: Prisma.UserWhereInput =
+    //     andConditions.length > 0 ? { AND: andConditions } : {};
+
+    const users = await prisma.user.findMany({
+        where: {
+            AND: andConditions
+        },
+        skip,
+        take: limit,
+        orderBy: {
+            [sortBy]: sortOrder,
+        },
+        omit: {
+            password: true
+        },
+        include: {
+            technicianProfile: {
+                select: {
+                    id: true,
+                    bio: true,
+                    skills: true,
+                    experience: true,
+                    description: true,
+                    location: true,
+                    availability: {
+                        where: availabilityWhere,
+                        select: {
+                            id: true,
+                            dayOfWeek: true,
+                            startTime: true,
+                            endTime: true,
+                            isAvailable: true
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    const totalUsers = await prisma.user.count({
+        where: {
+            AND: andConditions
+        }
+    });
+
+    return {
+        data: users,
+        meta: {
+            page,
+            limit,
+            total: totalUsers,
+        },
+    };
+};
+
+const updateUserStatusIntoDB = async (id: string, payload: IUpdateUserStatus) => {
+    const user = await prisma.user.findUniqueOrThrow({
+        where: { id }
+    });
+
+    if (user.status === payload.status) {
+        throw new SelfError(`User is already ${payload.status.toLowerCase()}`, httpStatus.CONFLICT);
+    }
+
+    const status = payload.status.toUpperCase() as UserStatus;
+    if (!Object.values(UserStatus).includes(status)) {
+        throw new SelfError("Invalid user status. Allowed values are ACTIVE and BANNED.", httpStatus.BAD_REQUEST);
+    }
+
+    const updatedUser = await prisma.user.update({
+        where: { id },
+        data: {
+            status
+        },
+        omit: {
+            password: true,
+        }
+    });
+
+    return updatedUser;
+};
+
+const getAllBookingsFromDB = async (query: IBookingQuery) => {
+    const limit = query.limit ? Number(query.limit) : 10;
+    const page = query.page ? Number(query.page) : 1;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy ? String(query.sortBy) : "createdAt";
+    const sortOrder = query.sortOrder ? String(query.sortOrder) : "desc";
+
+    const andConditions: BookingWhereInput[] = [];
+
+    if (query.searchTerm) {
+        andConditions.push({
+            OR: [
+                {
+                    address: {
+                        contains: String(query.searchTerm),
+                        mode: "insensitive",
+                    },
+                },
+                {
+                    notes: {
+                        contains: String(query.searchTerm),
+                        mode: "insensitive",
+                    },
+                },
+            ],
+        });
+    }
+
+    if (query.status) {
+        andConditions.push({
+            status: query.status as BookingStatus,
+        });
+    }
+
+    const bookings = await prisma.booking.findMany({
+        where: {
+            AND: andConditions,
+        },
+        skip,
+        take: limit,
+        orderBy: {
+            [sortBy]: sortOrder,
+        },
+        include: {
+            customer: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+            technician: true,
+            service: true,
+        },
+    });
+
+    const totalBookings = await prisma.booking.count({
+        where: {
+            AND: andConditions,
+        },
+    });
+
+    return {
+        data: bookings,
+        meta: {
+            page,
+            limit,
+            total: totalBookings,
+        },
+    };
+};
+
 
 export const adminServices = {
+    createServiceCategoryIntoDB,
+    getAllServiceCategoriesFromDB,
+    updateServiceCategoriesFromDB,
+    deleteServiceCategoriesFromDB,
     getAllUsersFromDB,
     updateUserStatusIntoDB,
     getAllBookingsFromDB,
-    getAllCategoriesFromDB,
-    createServiceCategoryIntoDB,
 };

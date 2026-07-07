@@ -15,6 +15,48 @@ const createServiceCategory = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const getAllServiceCategories = catchAsyncUtil(async (req, res) => {
+    const result = await adminServices.getAllServiceCategoriesFromDB(req.query);
+
+    if (result.data.length === 0) {
+        throw new SelfError("No categories found", httpStatus.NOT_FOUND);
+    }
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Categories retrieved successfully",
+        data: result.data,
+        meta: result.meta
+    });
+});
+
+const updateServiceCategories = catchAsyncUtil(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await adminServices.updateServiceCategoriesFromDB(id as string, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Category updated successfully",
+        data: result,
+    });
+});
+
+const deleteServiceCategories = catchAsyncUtil(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await adminServices.deleteServiceCategoriesFromDB(id as string);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Category deleted successfully",
+        data: result,
+    });
+});
+
 const getAllUsers = catchAsyncUtil(async (req, res) => {
     const result = await adminServices.getAllUsersFromDB(req.query);
 
@@ -51,31 +93,18 @@ const getAllBookings = catchAsyncUtil(async (req, res) => {
         statusCode: httpStatus.OK,
         success: true,
         message: "Bookings retrieved successfully",
-        data: result,
-    });
-});
-
-const getAllCategories = catchAsyncUtil(async (req, res) => {
-    const result = await adminServices.getAllCategoriesFromDB(req.query);
-
-    if (result.data.length === 0) {
-        throw new SelfError("No categories found", httpStatus.NOT_FOUND);
-    }
-
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Categories retrieved successfully",
         data: result.data,
-        meta: result.meta
+        meta: result.meta,
     });
 });
 
 
 export const adminController = {
+    createServiceCategory,
+    getAllServiceCategories,
+    updateServiceCategories,
+    deleteServiceCategories,
     getAllUsers,
     updateUserStatus,
     getAllBookings,
-    getAllCategories,
-    createServiceCategory,
 };

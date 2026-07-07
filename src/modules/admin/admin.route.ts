@@ -5,15 +5,44 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
-// Users
-router.get("/users", authProtected(UserRole.ADMIN), adminController.getAllUsers);
-router.patch("/users/:id", authProtected(UserRole.ADMIN), adminController.updateUserStatus);
-
-// Bookings
-router.get("/bookings", authProtected(UserRole.ADMIN), adminController.getAllBookings);
 
 // Categories
-router.get("/categories", authProtected(UserRole.ADMIN), adminController.getAllCategories);
-router.post("/categories", authProtected(UserRole.ADMIN), adminController.createServiceCategory);
+router.post("/categories",
+    authProtected(UserRole.ADMIN),
+    adminController.createServiceCategory
+);
+
+router.get("/categories",
+    authProtected(UserRole.ADMIN),
+    adminController.getAllServiceCategories
+);
+
+router.patch("/categories/:id",
+    authProtected(UserRole.ADMIN),
+    adminController.updateServiceCategories
+)
+
+router.delete("/categories/:id",
+    authProtected(UserRole.ADMIN),
+    adminController.deleteServiceCategories
+)
+
+// Users
+router.get("/users", 
+    authProtected(UserRole.ADMIN), 
+    adminController.getAllUsers
+);
+
+router.patch("/users/:id", 
+    authProtected(UserRole.ADMIN), 
+    adminController.updateUserStatus
+);
+
+// Bookings
+router.get("/bookings", 
+    authProtected(UserRole.ADMIN), 
+    adminController.getAllBookings
+);
+
 
 export const adminRoutes = router;

@@ -7,27 +7,27 @@ const router = Router();
 
 
 router.post("/", 
-    authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
+    authProtected(UserRole.CUSTOMER),
     bookingController.createBooking
 );
 
 router.get("/",
-    authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
+    authProtected(UserRole.CUSTOMER),
     bookingController.allBooking
 );
 
 router.get("/:id",
-    authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
+    authProtected(UserRole.CUSTOMER),
     bookingController.singleBookingDetails
 );
 
 router.patch("/:id",
-    authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
+    authProtected(UserRole.CUSTOMER),
     bookingController.updateBooking
 );
 
 router.delete("/:id",
-    authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
+    authProtected(UserRole.CUSTOMER),
     bookingController.deleteBooking
 );
 

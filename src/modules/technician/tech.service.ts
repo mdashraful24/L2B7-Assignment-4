@@ -104,14 +104,20 @@ const getAllTechnician = async (query: ITechnician) => {
         include: {
             user: {
                 omit: {
-                    id: true,
+                    // id: true,
                     email: true,
                     password: true,
                     role: true,
                     createdAt: true,
                     updatedAt: true
+                },
+            },
+            services:{
+                include:{
+                    category:true
                 }
-            }
+            },
+            availability: true
         }
     });
 
@@ -456,6 +462,7 @@ const updateBookingStatusFromDB = async (technicianId: string, bookingId: string
         throw new SelfError("Booking not found", httpStatus.NOT_FOUND);
     }
 
+    const status = payload.status.toUpperCase() as BookingStatus;
     if (!Object.values(BookingStatus).includes(payload.status)) {
         throw new SelfError("Invalid booking status", httpStatus.BAD_REQUEST);
     }
@@ -465,7 +472,7 @@ const updateBookingStatusFromDB = async (technicianId: string, bookingId: string
             id: bookingId,
         },
         data: {
-            status: payload.status,
+            status,
         },
     });
 };
