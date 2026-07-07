@@ -15,7 +15,6 @@ model Payment {
   status   PaymentStatus   @default(PENDING)
 
   paymentIntentId String?
-  ClientSecret    String?
   sessionId       String?
   metadata        Json?
   paidAt          DateTime?
