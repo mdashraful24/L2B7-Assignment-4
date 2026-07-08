@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { prisma } from '../../lib/prisma';
 import { SelfError } from '../../utils/errorResponse';
 import { ICreateBooking, IUpdateBooking } from './booking.interface';
+import { BookingStatus } from '../../../generated/prisma/enums';
 
 const createBookingIntoDB = async (customerId: string, payload: ICreateBooking) => {
     const { technicianId, categoryId, serviceId, availableSlotId, scheduledAt, address, notes, totalAmount, } = payload;
@@ -201,7 +202,7 @@ const getSingleBooking = async (userId: string, bookingId: string) => {
 };
 
 const updateBookingFromDB = async (userId: string, bookingId: string, payload: IUpdateBooking) => {
-    const { scheduledAt, address, notes, totalAmount, availableSlotId } = payload;
+    const { scheduledAt, address, notes, totalAmount, availableSlotId, status } = payload;
 
     const booking = await prisma.booking.findFirst({
         where: {
@@ -214,6 +215,19 @@ const updateBookingFromDB = async (userId: string, bookingId: string, payload: I
         throw new SelfError('Booking not found', httpStatus.NOT_FOUND);
     }
 
+    if (status) {
+        // Only allow CANCELLED
+        if (status !== BookingStatus.CANCELLED) {
+            throw new SelfError('You can only update the status to CANCELLED', httpStatus.BAD_REQUEST);
+        }
+
+        // Cannot cancel after work has started or completed
+        if (booking.status === BookingStatus.IN_PROGRESS || booking.status === BookingStatus.COMPLETED
+        ) {
+            throw new SelfError('Booking cannot be cancelled once it is in progress or completed', httpStatus.BAD_REQUEST);
+        }
+    }
+
     // data: {
     //     scheduledAt: scheduledAt ? new Date(scheduledAt) : booking.scheduledAt,
     //         address: address ?? booking.address,
@@ -224,19 +238,22 @@ const updateBookingFromDB = async (userId: string, bookingId: string, payload: I
     const updatedBookingData = await prisma.booking.update({
         where: { id: bookingId },
         data: {
-            scheduledAt: scheduledAt ? new Date(scheduledAt) : booking.scheduledAt,
+            scheduledAt: scheduledAt
+                ? new Date(scheduledAt)
+                : booking.scheduledAt,
             address,
             notes,
             totalAmount,
-            availableSlotId
+            availableSlotId,
+            status,
         },
         include: {
             customer: {
                 select: {
                     id: true,
                     name: true,
-                    email: true
-                }
+                    email: true,
+                },
             },
             service: true,
             technician: true,

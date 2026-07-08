@@ -1,11 +1,24 @@
 export interface ICreateService {
-    // technicianId: string;
     categoryId: string;
     title: string;
     description: string;
     price: number;
     duration: number;
     isAvailable?: boolean;
+}
+
+export interface IUpdateService {
+    categoryId?: string;
+    title?: string;
+    description?: string;
+    price?: number;
+    duration?: number;
+    isAvailable?: boolean;
+
+    // Technician profile fields
+    skills?: string[];
+    experience?: string;
+    hourlyRate?: number;
 }
 
 export interface IServices {

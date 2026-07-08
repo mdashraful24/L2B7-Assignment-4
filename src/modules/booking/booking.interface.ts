@@ -1,3 +1,5 @@
+import { BookingStatus } from "../../../generated/prisma/enums";
+
 export interface ICreateBooking {
     technicianId: string;
     categoryId: string;
@@ -10,9 +12,7 @@ export interface ICreateBooking {
 }
 
 export interface IUpdateBooking {
-    // status?: string;
-    // scheduledDate?: string;
-    // scheduledTime?: string;
+    status?: BookingStatus;
     scheduledAt?: string;
     address?: string;
     notes?: string;

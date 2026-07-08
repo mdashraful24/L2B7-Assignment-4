@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
 import { SelfError } from "../../utils/errorResponse";
-import { ICreateService, IServices } from "./service.interface";
+import { ICreateService, IUpdateService, IServices } from "./service.interface";
 import { UserRole, UserStatus } from '../../../generated/prisma/enums';
 import { ServiceWhereInput } from '../../../generated/prisma/models';
 
@@ -213,7 +213,7 @@ const getAllServicesWithFilter = async (query: IServices) => {
 
 const getSingleService = async (serviceId: string) => {
     const service = await prisma.service.findUniqueOrThrow({
-        where:{
+        where: {
             id: serviceId
         },
         include: {
@@ -246,14 +246,101 @@ const getSingleService = async (serviceId: string) => {
     return service;
 };
 
-// const getAllServiceCategories = async () => {
+const updateServiceFromDB = async (technicianId: string, serviceId: string, payload: IUpdateService) => {
+    const { categoryId, title, description, price, duration, isAvailable, skills, experience, hourlyRate, } = payload;
 
-// };
+    const existingService = await prisma.service.findUnique({
+        where: {
+            id: serviceId,
+        },
+        include: {
+            technician: {
+                select: {
+                    id: true,
+                    userId: true,
+                },
+            },
+        },
+    });
+
+    if (!existingService) {
+        throw new SelfError(
+            "Service not found",
+            httpStatus.NOT_FOUND
+        );
+    }
+
+    if (existingService.technician.userId !== technicianId) {
+        throw new SelfError(
+            "You are not authorized to update this service",
+            httpStatus.FORBIDDEN
+        );
+    }
+
+    if (categoryId !== undefined) {
+        await prisma.category.findUniqueOrThrow({
+            where: {
+                id: categoryId,
+            },
+        });
+    }
+
+    if (title !== undefined) {
+        const duplicateService = await prisma.service.findFirst({
+            where: {
+                technicianId: existingService.technicianId,
+                title,
+                NOT: {
+                    id: serviceId,
+                },
+            },
+        });
+
+        if (duplicateService) {
+            throw new SelfError( "You already have a service with this title", httpStatus.CONFLICT );
+        }
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+        const updatedService = await tx.service.update({
+            where: {
+                id: serviceId,
+            },
+            data: {
+                categoryId,
+                title,
+                description,
+                price,
+                duration,
+                isAvailable,
+            },
+        });
+
+        const updatedTechnicianProfile =
+            await tx.technicianProfile.update({
+                where: {
+                    id: existingService.technicianId,
+                },
+                data: {
+                    skills,
+                    experience,
+                    hourlyRate,
+                },
+            });
+
+        return {
+            service: updatedService,
+            technicianProfile: updatedTechnicianProfile,
+        };
+    });
+
+    return result;
+};
 
 
 export const serviceServices = {
     createServiceIntoDB,
     getAllServicesWithFilter,
     getSingleService,
-    // getAllServiceCategories
+    updateServiceFromDB
 };

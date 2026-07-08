@@ -52,14 +52,28 @@ const singleService = catchAsyncUtil(async(req, res)=>{
     });
 });
 
-// const allServiceCategories = catchAsyncUtil(async(req, res)=>{
+const updatedService = catchAsyncUtil(async(req, res)=>{
+    const technicianId = req.user?.id as string;
+    const { id } = req.params;
 
-// });
+    if (!id) {
+        throw new SelfError("Service ID is required", httpStatus.BAD_REQUEST);
+    }
+
+    const result = await serviceServices.updateServiceFromDB(technicianId, id as string, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Service updated successfully",
+        data: result,
+    });
+});
 
 
 export const serviceController = {
     createService,
     allServicesWithFilter,
     singleService,
-    // allServiceCategories,
+    updatedService,
 };
