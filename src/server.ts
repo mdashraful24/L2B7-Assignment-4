@@ -2,6 +2,7 @@ import app from "./app";
 import config from "./config";
 import { prisma } from "./lib/prisma";
 
+// Project running port
 const PORT = config.port;
 
 async function main() {

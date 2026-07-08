@@ -29,7 +29,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Start Routes
+
+// Default Route
 app.get("/", (req: Request, res: Response) => {
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -42,7 +43,7 @@ app.get("/", (req: Request, res: Response) => {
     });
 });
 
-
+// All Business Routes
 app.use("/api/auth/", authRoutes);
 app.use("/api/technicians", technicianRoutes);
 app.use("/api/services", serviceRoutes);
@@ -58,5 +59,6 @@ app.use(routeNotFound);
 
 // Global Error Handling Middleware
 app.use(globalErrorHandler);
+
 
 export default app;
