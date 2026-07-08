@@ -39,24 +39,6 @@ const getAllTechnician = async (query: ITechnician) => {
         });
     }
 
-    // Filter by min hourly rate
-    if (query.minHourlyRate) {
-        andConditions.push({
-            hourlyRate: {
-                gte: Number(query.minHourlyRate)
-            }
-        });
-    }
-
-    // Filter by max hourly rate
-    if (query.maxHourlyRate) {
-        andConditions.push({
-            hourlyRate: {
-                lte: Number(query.maxHourlyRate)
-            }
-        });
-    }
-
     // Filter by min rating
     if (query.minRating) {
         andConditions.push({
@@ -239,7 +221,7 @@ const updateProfileFromDB = async (technicianId: string, payload: IUpdateTechnic
         throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
     }
 
-    const { name, email, password, phone, address, bio, skills, experience, hourlyRate, description, location } = payload;
+    const { name, email, password, phone, address, bio, skills, experience, description, location } = payload;
 
     if (email) {
         const existingUser = await prisma.user.findFirst({
@@ -280,7 +262,6 @@ const updateProfileFromDB = async (technicianId: string, payload: IUpdateTechnic
                     bio,
                     skills,
                     experience,
-                    hourlyRate,
                     description,
                     location,
                 },

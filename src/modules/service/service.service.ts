@@ -63,6 +63,7 @@ const createServiceIntoDB = async (technicianId: string, payload: ICreateService
     const service = await prisma.service.create({
         data: {
             ...payload,
+            hourlyRate: payload.hourlyRate ?? payload.price,
             technicianId: technician.technicianProfile.id,
         },
     });
@@ -167,6 +168,7 @@ const getAllServicesWithFilter = async (query: IServices) => {
             title: true,
             description: true,
             price: true,
+            hourlyRate: true,
             duration: true,
             isAvailable: true,
 
@@ -247,7 +249,7 @@ const getSingleService = async (serviceId: string) => {
 };
 
 const updateServiceFromDB = async (technicianId: string, serviceId: string, payload: IUpdateService) => {
-    const { categoryId, title, description, price, duration, isAvailable, skills, experience, hourlyRate, } = payload;
+    const { categoryId, title, description, price, hourlyRate, duration, isAvailable, skills, experience } = payload;
 
     const existingService = await prisma.service.findUnique({
         where: {
@@ -307,12 +309,13 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
                 id: serviceId,
             },
             data: {
-                categoryId,
-                title,
-                description,
-                price,
-                duration,
-                isAvailable,
+                ...(categoryId !== undefined ? { categoryId } : {}),
+                ...(title !== undefined ? { title } : {}),
+                ...(description !== undefined ? { description } : {}),
+                ...(price !== undefined ? { price } : {}),
+                ...(hourlyRate !== undefined ? { hourlyRate } : {}),
+                ...(duration !== undefined ? { duration } : {}),
+                ...(isAvailable !== undefined ? { isAvailable } : {}),
             },
         });
 
@@ -322,9 +325,8 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
                     id: existingService.technicianId,
                 },
                 data: {
-                    skills,
-                    experience,
-                    hourlyRate,
+                    ...(skills !== undefined ? { skills } : {}),
+                    ...(experience !== undefined ? { experience } : {}),
                 },
             });
 

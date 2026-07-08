@@ -8,7 +8,7 @@ import { jwtUtils } from '../../utils/jwt';
 import { JwtPayload, SignOptions } from 'jsonwebtoken';
 
 const registerUserIntoDB = async (payload: IUser) => {
-    const { name, email, password, phone, role, address, bio, skills, experience, hourlyRate, description, location } = payload;
+    const { name, email, password, phone, role, address, bio, skills, experience, description, location } = payload;
 
     // Prevent public admin registration
     if (role === "ADMIN") {
@@ -45,7 +45,6 @@ const registerUserIntoDB = async (payload: IUser) => {
                         bio,
                         skills,
                         experience,
-                        hourlyRate,
                         description,
                         location,
                     },

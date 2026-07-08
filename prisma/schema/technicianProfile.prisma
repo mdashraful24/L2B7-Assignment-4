@@ -4,7 +4,6 @@ model TechnicianProfile {
   bio          String?
   skills       String[] @default([])
   experience   String?
-  hourlyRate   Float?
   description  String?
   location     String?
   rating       Float    @default(0)

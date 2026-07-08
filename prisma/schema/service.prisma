@@ -10,6 +10,7 @@ model Service {
   title       String
   description String
   price       Float
+  hourlyRate  Float?
   duration    Int
   isAvailable Boolean @default(true)
 
