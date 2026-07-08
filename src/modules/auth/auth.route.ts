@@ -7,8 +7,11 @@ const router = Router();
 
 
 router.post("/register", authController.registerUser);
+
 router.post("/login", authController.loginUser);
+
 router.post("/refresh-token", authController.authRefreshToken);
+
 router.get("/me",
     authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
     authController.getMe
