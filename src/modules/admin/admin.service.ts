@@ -133,7 +133,9 @@ const deleteServiceCategoriesFromDB = async (id: string) => {
         },
     });
 
-    return deletedCategory;
+    return {
+        message: "Deleted successfully"
+    };
 };
 
 const getAllUsersFromDB = async (query: IGetUsersQuery) => {
