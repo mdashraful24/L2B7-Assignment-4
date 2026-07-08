@@ -202,7 +202,7 @@ const getSingleBooking = async (userId: string, bookingId: string) => {
 };
 
 const updateBookingFromDB = async (userId: string, bookingId: string, payload: IUpdateBooking) => {
-    const { scheduledAt, address, notes, totalAmount, availableSlotId, status } = payload;
+    const { scheduledAt, address, notes, availableSlotId, } = payload;
 
     const booking = await prisma.booking.findFirst({
         where: {
@@ -215,25 +215,12 @@ const updateBookingFromDB = async (userId: string, bookingId: string, payload: I
         throw new SelfError('Booking not found', httpStatus.NOT_FOUND);
     }
 
-    if (status) {
-        // Only allow CANCELLED
-        if (status !== BookingStatus.CANCELLED) {
-            throw new SelfError('You can only update the status to CANCELLED', httpStatus.BAD_REQUEST);
-        }
-
-        // Cannot cancel after work has started or completed
-        if (booking.status === BookingStatus.IN_PROGRESS || booking.status === BookingStatus.COMPLETED
-        ) {
-            throw new SelfError('Booking cannot be cancelled once it is in progress or completed', httpStatus.BAD_REQUEST);
-        }
+    if (booking.status === BookingStatus.IN_PROGRESS ||
+        booking.status === BookingStatus.COMPLETED ||
+        booking.status === BookingStatus.CANCELLED
+    ) {
+        throw new SelfError("This booking can no longer be updated.", httpStatus.BAD_REQUEST);
     }
-
-    // data: {
-    //     scheduledAt: scheduledAt ? new Date(scheduledAt) : booking.scheduledAt,
-    //         address: address ?? booking.address,
-    //             notes: notes ?? booking.notes,
-    //                 totalAmount: totalAmount ?? booking.totalAmount,
-    //     },
 
     const updatedBookingData = await prisma.booking.update({
         where: { id: bookingId },
@@ -243,9 +230,7 @@ const updateBookingFromDB = async (userId: string, bookingId: string, payload: I
                 : booking.scheduledAt,
             address,
             notes,
-            totalAmount,
             availableSlotId,
-            status,
         },
         include: {
             customer: {
@@ -263,38 +248,71 @@ const updateBookingFromDB = async (userId: string, bookingId: string, payload: I
     return updatedBookingData;
 };
 
-const deleteBookingFromBD = async (userId: string, bookingId: string) => {
+const updateBookingStatusFromDB = async (userId: string, bookingId: string, status: string) => {
     const booking = await prisma.booking.findFirst({
         where: {
             id: bookingId,
-            customerId: userId
-        }
+            customerId: userId,
+        },
     });
 
     if (!booking) {
-        throw new SelfError('Booking not found', httpStatus.NOT_FOUND);
+        throw new SelfError("Booking not found", httpStatus.NOT_FOUND);
     }
 
+    const normalizedStatus = String(status).toUpperCase();
+
+    // Customers can only cancel bookings
+    if (normalizedStatus !== BookingStatus.CANCELLED) {
+        throw new SelfError(
+            "Customers can only change booking status to CANCELLED",
+            httpStatus.BAD_REQUEST
+        );
+    }
+
+    // Cannot cancel once work has started or completed
+    if (booking.status === BookingStatus.IN_PROGRESS || booking.status === BookingStatus.COMPLETED) {
+        throw new SelfError(
+            "This booking can no longer be cancelled because the service has already IN_PROGRESS or been COMPLETED.",
+            httpStatus.BAD_REQUEST
+        );
+    }
+
+    // Already cancelled
+    if (booking.status === BookingStatus.CANCELLED) {
+        throw new SelfError(
+            "This booking has already been cancelled.",
+            httpStatus.BAD_REQUEST
+        );
+    }
+
+    const updatedBooking = await prisma.booking.update({
+        where: {
+            id: bookingId,
+        },
+        data: {
+            status: BookingStatus.CANCELLED,
+        },
+        include: {
+            customer: true,
+            service: true,
+            technician: true,
+        },
+    });
+
+    // Release slot after cancellation
     if (booking.availableSlotId) {
         await prisma.availableSlot.update({
             where: {
-                id: booking.availableSlotId
+                id: booking.availableSlotId,
             },
             data: {
-                isAvailable: true
+                isAvailable: true,
             },
         });
     }
 
-    await prisma.booking.delete({
-        where: {
-            id: bookingId
-        }
-    });
-
-    return {
-        message: 'Booking deleted successfully'
-    };
+    return updatedBooking;
 };
 
 
@@ -303,5 +321,5 @@ export const bookingServices = {
     getAllBooking,
     getSingleBooking,
     updateBookingFromDB,
-    deleteBookingFromBD
+    updateBookingStatusFromDB
 };

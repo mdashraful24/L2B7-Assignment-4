@@ -25,9 +25,9 @@ router.patch("/:id",
     bookingController.updateBooking
 );
 
-router.delete("/:id",
+router.patch("/status/:id",
     authProtected(UserRole.CUSTOMER),
-    bookingController.deleteBooking
+    bookingController.updateBookingStatus
 );
 
 

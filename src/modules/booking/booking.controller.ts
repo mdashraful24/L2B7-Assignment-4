@@ -62,24 +62,30 @@ const updateBooking = catchAsyncUtil(async (req, res) => {
     });
 });
 
-const deleteBooking = catchAsyncUtil(async (req, res) => {
+const updateBookingStatus = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
     const { id } = req.params;
+    const { status } = req.body;
 
-    const result = await bookingServices.deleteBookingFromBD(userId, id as string);
+    if (!status) {
+        throw new SelfError("Status is required", httpStatus.BAD_REQUEST);
+    }
+
+    const result = await bookingServices.updateBookingStatusFromDB(userId, id as string, status);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
-        message: "Booking deleted successfully",
+        message: "Booking status updated successfully",
         data: result,
     });
 });
+
 
 export const bookingController = {
     createBooking,
     allBooking,
     singleBookingDetails,
     updateBooking,
-    deleteBooking,
+    updateBookingStatus,
 };
