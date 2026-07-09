@@ -17,7 +17,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "// {\r\n//   \"name\": \"Karim Hasan\",\r\n//   \"email\": \"karim.customer@example.com\",\r\n//   \"password\": \"Password123@\",\r\n//   \"phone\": \"+8801812345678\",\r\n//   \"role\": \"CUSTOMER\",\r\n//   \"address\": \"Uttara, Dhaka, Bangladesh\"\r\n// }\r\n\r\n\r\n\r\n// {\r\n//     \"name\": \"Rahim Ahmed\",\r\n//     \"email\": \"rahim.technicianh@example.com\",\r\n//     \"password\": \"123456@\",\r\n//     \"phone\": \"+8801712345678\",\r\n//     \"role\": \"TECHNICIAN\",\r\n//     \"address\": \"Mirpur, Dhaka, Bangladesh\",\r\n//     \"bio\": \"Experienced home appliance technician with 5 years of experience.\",\r\n//     \"skills\": [\r\n//         \"AC Repair\",\r\n//         \"Refrigerator Repair\",\r\n//         \"Washing Machine Repair\"\r\n//     ],\r\n//     \"experience\": \"5 years\",\r\n//     \"hourlyRate\": 500,\r\n//     \"description\": \"Specialized in residential and commercial appliance maintenance.\",\r\n//     \"location\": \"Dhaka\"\r\n// }\r\n\r\n\r\n\r\n// {\r\n//   \"name\": \"Mr. Admin\",\r\n//   \"email\": \"admin@rentnest.com\",\r\n//   \"password\": \"admin123\",\r\n//   \"phone\": \"+8801912345678\",\r\n//   \"role\": \"ADMIN\",\r\n//   \"address\": \"Dhanmondi, Dhaka, Bangladesh\",\r\n// }\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+              "raw": "{\r\n  \"name\": \"Jahid Technician\",\r\n  \"email\": \"jahid.tech@gmail.com\",\r\n  \"password\": \"12345678\",\r\n  \"role\": \"TECHNICIAN\",\r\n  \"phone\": \"01822222222\",\r\n  \"address\": \"Mirpur, Dhaka\",\r\n\r\n  \"bio\": \"Professional home appliance technician\",\r\n  \"skills\": [\r\n    \"Electrical Repair\",\r\n    \"AC Servicing\",\r\n    \"Refrigerator Repair\"\r\n  ],\r\n  \"experience\": \"5 Years\",\r\n  \"description\": \"Experienced technician for electrical and home appliance services\",\r\n  \"location\": \"Dhaka\"\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n// {\r\n//   \"name\": \"Karim Hasan\",\r\n//   \"email\": \"karim.customer@example.com\",\r\n//   \"password\": \"Password123@\",\r\n//   \"phone\": \"+8801812345678\",\r\n//   \"role\": \"CUSTOMER\",\r\n//   \"address\": \"Uttara, Dhaka, Bangladesh\"\r\n// }\r\n\r\n\r\n\r\n// {\r\n//     \"name\": \"Rahim Ahmed\",\r\n//     \"email\": \"rahim.technicianh@example.com\",\r\n//     \"password\": \"123456@\",\r\n//     \"phone\": \"+8801712345678\",\r\n//     \"role\": \"TECHNICIAN\",\r\n//     \"address\": \"Mirpur, Dhaka, Bangladesh\",\r\n//     \"bio\": \"Experienced home appliance technician with 5 years of experience.\",\r\n//     \"skills\": [\r\n//         \"AC Repair\",\r\n//         \"Refrigerator Repair\",\r\n//         \"Washing Machine Repair\"\r\n//     ],\r\n//     \"experience\": \"5 years\",\r\n//     \"hourlyRate\": 500,\r\n//     \"description\": \"Specialized in residential and commercial appliance maintenance.\",\r\n//     \"location\": \"Dhaka\"\r\n// }\r\n\r\n\r\n\r\n// {\r\n//   \"name\": \"Mr. Admin\",\r\n//   \"email\": \"admin@rentnest.com\",\r\n//   \"password\": \"admin123\",\r\n//   \"phone\": \"+8801912345678\",\r\n//   \"role\": \"ADMIN\",\r\n//   \"address\": \"Dhanmondi, Dhaka, Bangladesh\",\r\n// }\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
               "options": {
                 "raw": {
                   "language": "json"
@@ -25,12 +25,13 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/auth/register",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/auth/register",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "auth",
@@ -47,7 +48,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    // 🟢 Customer\r\n    // \"email\": \"karim.customer@example.com\",\r\n    // \"password\": \"Password123@\"\r\n\r\n\r\n    // ⚙️ Technician\r\n    // \"email\": \"rahim.technicianh@example.com\",\r\n    // \"password\": \"123456\"\r\n\r\n\r\n    // 🔴 Admin Credentials\r\n    // \"email\": \"admin@rentnest.com\",\r\n    // \"password\": \"admin123\"\r\n}",
+              "raw": "{\r\n    \"email\": \"rahim.technicianh@example.com\",\r\n    \"password\": \"123456@\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -55,12 +56,13 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/auth/login",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/auth/login",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "auth",
@@ -76,12 +78,13 @@
             "method": "POST",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/auth/refresh-token",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/auth/refresh-token",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "auth",
@@ -97,12 +100,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/auth/me",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/auth/me",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "auth",
@@ -115,20 +119,21 @@
       ]
     },
     {
-      "name": "Services & Technicians (Public)",
+      "name": "Technician & Service Management",
       "item": [
         {
-          "name": "Get Technicians with Filter & Search",
+          "name": "Get All Technicians (Public)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/technicians",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians?skills=[\"Electrical Repair\"]&location=Dhaka&experience=5 Years",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "technicians"
@@ -136,45 +141,21 @@
               "query": [
                 {
                   "key": "skills",
-                  "value": "[\"AWS\"]",
-                  "type": "text",
-                  "disabled": true
+                  "value": "[\"Electrical Repair\"]",
+                  "description": "Technician skills",
+                  "type": "text"
                 },
                 {
                   "key": "location",
-                  "value": "30.2672",
-                  "type": "text",
-                  "disabled": true
+                  "value": "Dhaka",
+                  "description": "Technician location (Dhaka, etc)",
+                  "type": "text"
                 },
                 {
                   "key": "experience",
-                  "value": "5",
-                  "type": "text",
-                  "disabled": true
-                },
-                {
-                  "key": "maxHourlyRate",
-                  "value": "70",
-                  "type": "text",
-                  "disabled": true
-                },
-                {
-                  "key": "minHourlyRate",
-                  "value": "60",
-                  "type": "text",
-                  "disabled": true
-                },
-                {
-                  "key": "maxRating",
-                  "value": "5",
-                  "type": "text",
-                  "disabled": true
-                },
-                {
-                  "key": "minRating",
-                  "value": "0",
-                  "type": "text",
-                  "disabled": true
+                  "value": "5 Years",
+                  "description": "Technichian experience (5 years, etc)",
+                  "type": "text"
                 }
               ]
             }
@@ -182,28 +163,90 @@
           "response": []
         },
         {
-          "name": "Get Technician Profile with Reviews",
+          "name": "Get Technician Profile (Public)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/technicians/4386a808-f4f7-4c58-b89c-282d3f59ace4",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians/43d7c931-429e-4dfb-a74a-c7f0f9acb55e",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "technicians",
-                "4386a808-f4f7-4c58-b89c-282d3f59ace4"
+                "43d7c931-429e-4dfb-a74a-c7f0f9acb55e"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Get Services with Filters",
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"phone\": \"+8801700000000\",\r\n    \"skills\": [\r\n        \"Electrical Wiring\",\r\n        \"Smart Home Installation\",\r\n        \"Fan Repair\",\r\n        \"Light Repair\"\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians/profile",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "technicians",
+                "profile"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Service",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"categoryId\": \"6e66d69a-aee8-41e7-8936-ff79ae91333c\",\r\n  \"title\": \"Custom Wooden Installation\",\r\n  \"description\": \"Design and install custom wooden cabinets for kitchens, bedrooms, and offices using high-quality materials and professional craftsmanship.\",\r\n  \"price\": 4500,\r\n  \"duration\": 240\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/services",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "services"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Services with Filters (Public)",
           "protocolProfileBehavior": {
             "disableBodyPruning": true
           },
@@ -220,12 +263,13 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/services",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/services?name=Painting&location=Dhaka",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "services"
@@ -233,56 +277,47 @@
               "query": [
                 {
                   "key": "searchTerm",
-                  "value": "",
+                  "value": "Painting",
                   "description": "Caterory name",
                   "type": "text",
                   "disabled": true
                 },
                 {
                   "key": "searchTerm",
-                  "value": "",
+                  "value": "Custom Wooden Installation",
                   "description": "Service title",
                   "type": "text",
                   "disabled": true
                 },
                 {
                   "key": "searchTerm",
-                  "value": "",
-                  "description": "Service description",
-                  "type": "text",
-                  "disabled": true
-                },
-                {
-                  "key": "searchTerm",
-                  "value": "",
+                  "value": "Dhaka",
                   "description": "Technician location",
                   "type": "text",
                   "disabled": true
                 },
                 {
                   "key": "name",
-                  "value": "",
+                  "value": "Painting",
                   "description": "Category name for Filtering",
-                  "type": "text",
-                  "disabled": true
+                  "type": "text"
                 },
                 {
                   "key": "location",
-                  "value": "",
+                  "value": "Dhaka",
                   "description": "Technician location for Filtering",
-                  "type": "text",
-                  "disabled": true
+                  "type": "text"
                 },
                 {
                   "key": "maxPrice",
-                  "value": "",
+                  "value": "4500",
                   "description": "Mximum service price for Filtering",
                   "type": "text",
                   "disabled": true
                 },
                 {
                   "key": "minPrice",
-                  "value": "",
+                  "value": "4000",
                   "description": "Minimum service price for Filtering",
                   "type": "text",
                   "disabled": true
@@ -307,41 +342,509 @@
           "response": []
         },
         {
-          "name": "Get Single Service",
+          "name": "Get Single Service (Public)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/services/d9e26234-2e37-449f-80fc-2771b0befe90",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/services/e65d9f81-c641-48a9-aec8-e0e427053ccb",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "services",
-                "d9e26234-2e37-449f-80fc-2771b0befe90"
+                "e65d9f81-c641-48a9-aec8-e0e427053ccb"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Get All Service Categories",
+          "name": "Get All Service Categories (Public)",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/categories",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/categories",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "categories"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Service",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"canclled\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/status/8e08a54d-fdbe-42b4-b35c-0894105af625",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "status",
+                "8e08a54d-fdbe-42b4-b35c-0894105af625"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Availability Slot",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"dayOfWeek\": \"Friday\",\r\n  \"startAt\": \"2026-07-10T09:00:00.000Z\",\r\n  \"endAt\": \"2026-07-10T11:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians/availability",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "technicians",
+                "availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Availability Slot",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"id\": \"c27413a0-a128-4588-b28c-79dc7d2e16f5\",\r\n    \"dayOfWeek\": \"Sunday\",\r\n    \"startAt\": \"2026-07-12T09:00:00.000Z\",\r\n    \"endAt\": \"2026-07-12T11:00:00.000Z\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians/availability",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "technicians",
+                "availability"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Technicians Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians/bookings",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "technicians",
+                "bookings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Booking Status",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"Completed\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians/bookings/8e08a54d-fdbe-42b4-b35c-0894105af625",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "technicians",
+                "bookings",
+                "8e08a54d-fdbe-42b4-b35c-0894105af625"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bookings",
+      "item": [
+        {
+          "name": "Create Booking",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"technicianId\": \"43d7c931-429e-4dfb-a74a-c7f0f9acb55e\",\r\n  \"categoryId\": \"38dad352-5309-4b47-9cdc-8139501b9fda\",\r\n  \"serviceId\": \"5ce91936-acb2-4de9-918d-32112cf6a03f\",\r\n  \"availableSlotId\": \"ea9656e8-e619-43da-bcec-3ddd2eeceae8\",\r\n  \"scheduledAt\": \"2026-07-10T09:30:00.000Z\",\r\n  \"address\": \"House 15, Road 7, Uttara, Dhaka\",\r\n  \"notes\": \"Please call before arriving\",\r\n  \"totalAmount\": 1200\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get User Bookings",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "bookings"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Booking Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/298b1f25-b04e-4c68-b085-8129af7cf8b3",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "298b1f25-b04e-4c68-b085-8129af7cf8b3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"notes\": \"Please call before arriving home.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/298b1f25-b04e-4c68-b085-8129af7cf8b3",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "298b1f25-b04e-4c68-b085-8129af7cf8b3"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Booking",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"status\": \"Canclled\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/298b1f25-b04e-4c68-b085-8129af7cf8b3",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "bookings",
+                "298b1f25-b04e-4c68-b085-8129af7cf8b3"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Payments",
+      "item": [
+        {
+          "name": "Create Intent/Session",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"bookingId\": \"8e08a54d-fdbe-42b4-b35c-0894105af625\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/payments/create",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "create"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Confirm Payment",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"paymentIntentId\": \"31f2a523-907e-46ce-9cf1-20c0dcefa8b6\",\r\n  \"sessionId\":\"cs_test_a1yF7M7qOoTYz6Mep8tu1Mni4dmI3z3UJ9nNRkPmDXFv0uiTjf2sNbiTt5\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/payments/confirm",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "confirm"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment History",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"bookingId\": \"8e08a54d-fdbe-42b4-b35c-0894105af625\"\r\n}"
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/payments",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Payment Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/payments/31f2a523-907e-46ce-9cf1-20c0dcefa8b6",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "31f2a523-907e-46ce-9cf1-20c0dcefa8b6"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Stripe Webhook",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"paymentIntentId\": \"9202026a-908d-4e7e-a17b-a39d72889ea3\",\r\n  \"sessionId\":\"cs_test_a1B7wQnNP0MjsFDqlA5U0SB3ScdcQGcrD4BvFc9XD0VcBfPhXwKSXooBtz\"\r\n}"
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/payments/webhook",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "payments",
+                "webhook"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"bookingId\": \"8e08a54d-fdbe-42b4-b35c-0894105af625\",\r\n  \"rating\": 4,\r\n  \"comment\": \"Excellent service. Highly recommended.\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/reviews",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "reviews"
               ]
             }
           },
@@ -359,7 +862,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Carpentry\",\r\n  \"description\": \"Furniture repair, custom woodwork, and home carpentry services.\",\r\n  \"icon\": \"https://example.com/icons/carpentry.png\",\r\n  \"isActive\": true\r\n}\r\n\r\n\r\n// {\r\n//   \"name\": \"Electrical\",\r\n//   \"description\": \"Electrical installation and repair services\",\r\n//   \"icon\": \"https://example.com/icons/electrical.png\"\r\n// }",
+              "raw": "{\r\n  \"name\": \"Cutting\",\r\n  \"description\": \"Furniture repair, custom woodwork, and home painting services.\",\r\n  \"icon\": \"https://example.com/icons/painting.png\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -367,12 +870,13 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/admin/categories",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "admin",
@@ -388,12 +892,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/admin/categories",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories?name=Cutting",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "admin",
@@ -401,8 +906,13 @@
               ],
               "query": [
                 {
+                  "key": "name",
+                  "value": "Cutting",
+                  "description": "Category name"
+                },
+                {
                   "key": "isActive",
-                  "value": "false",
+                  "value": "True",
                   "description": "Check category active (true or false)",
                   "type": "text",
                   "disabled": true
@@ -418,12 +928,13 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/admin/users",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/users?role=TECHNICIAN",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "admin",
@@ -447,14 +958,18 @@
                   "key": "role",
                   "value": "TECHNICIAN",
                   "description": "CUSTOMER or TECHNICIAN or ADMIN",
-                  "type": "text",
-                  "disabled": true
+                  "type": "text"
                 },
                 {
                   "key": "status",
                   "value": "BANNED",
                   "description": "ACTIVE or BANNED",
                   "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "isAvailable",
+                  "value": "false",
                   "disabled": true
                 }
               ]
@@ -469,7 +984,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"status\": \"ACTIVE\"\r\n}",
+              "raw": "{\r\n    \"status\": \"Active\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -477,17 +992,18 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/admin/users/5c922a12-f289-44ca-b342-549b2ee8cd50",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/users/0a5058ba-2261-4ae0-b28f-fb10a61919f0",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "admin",
                 "users",
-                "5c922a12-f289-44ca-b342-549b2ee8cd50"
+                "0a5058ba-2261-4ae0-b28f-fb10a61919f0"
               ],
               "query": [
                 {
@@ -524,196 +1040,46 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/admin/bookings",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/bookings",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
                 "admin",
                 "bookings"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Technician Management",
-      "item": [
-        {
-          "name": "Update Profile",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"phone\": \"+8801700000000\",\r\n    \"skills\": [\r\n        \"Electrical Wiring\",\r\n        \"Smart Home Installation\",\r\n        \"Fan Repair\",\r\n        \"Light Repair\"\r\n    ]\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
+              ],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": "House 15, Road 7, Uttara, Dhaka",
+                  "description": "Booking address",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "COMPLETED",
+                  "description": "Booking status",
+                  "type": "text",
+                  "disabled": true
                 }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/technicians/profile",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "technicians",
-                "profile"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Create Availability Slot",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"dayOfWeek\": \"Monday\",\r\n  \"startAt\": \"2026-07-13T09:00:00.000Z\",\r\n  \"endAt\": \"2026-07-13T11:00:00.000Z\",\r\n  \"isAvailable\": true\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/technicians/availability",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "technicians",
-                "availability"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Availability Slot",
-          "request": {
-            "method": "PUT",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"id\": \"492ec837-2829-4252-b9d8-42cc399af4ca\",\r\n    \"dayOfWeek\": \"Friday\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/technicians/availability",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "technicians",
-                "availability"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Technicians Bookings",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/technicians/bookings",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "technicians",
-                "bookings"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Booking Status",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/technicians/bookings/",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "technicians",
-                "bookings",
-                ""
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Service",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"categoryId\": \"13e1565e-98dc-4495-9a5c-31d128e63787\",\r\n  \"title\": \"Circuit Breaker Replacement\",\r\n  \"description\": \"Replace faulty circuit breakers and inspect the electrical panel to ensure safe and reliable power distribution.\",\r\n  \"price\": 2500,\r\n  \"duration\": 120\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/services",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "services"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Service",
+          "name": "Update Category",
           "request": {
             "method": "PATCH",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "",
+              "raw": "{\r\n  \"description\": \"Furniture repair, custom woodwork services.\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -721,246 +1087,41 @@
               }
             },
             "url": {
-              "raw": "http://localhost:3000/api/bookings/status/",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories/1ffeba15-b097-4932-b590-67896661b555",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
-                "bookings",
-                "status",
-                ""
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Bookings",
-      "item": [
-        {
-          "name": "Create Booking",
-          "request": {
-            "method": "GET",
-            "header": []
-          },
-          "response": []
-        },
-        {
-          "name": "Get User Bookings",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/bookings",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "bookings"
+                "admin",
+                "categories",
+                "1ffeba15-b097-4932-b590-67896661b555"
               ]
             }
           },
           "response": []
         },
         {
-          "name": "Get Single Booking Details",
+          "name": "Delete Category",
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:3000/api/bookings/f02edff9-c970-4dfa-90bc-b1477205919a",
-              "protocol": "http",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories/38dad352-5309-4b47-9cdc-8139501b9fda",
+              "protocol": "https",
               "host": [
-                "localhost"
+                "fixitnow-blush",
+                "vercel",
+                "app"
               ],
-              "port": "3000",
               "path": [
                 "api",
-                "bookings",
-                "f02edff9-c970-4dfa-90bc-b1477205919a"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Booking",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    //   \"scheduledAt\": \"2026-07-13\"\r\n    //   \"address\": \"House 15, Road 7, Uttara, Dhaka\",\r\n    //   \"notes\": \"Please call before arriving\",\r\n    //   \"totalAmount\": 500,\r\n    \"availableSlotId\": \"492ec837-2829-4252-b9d8-42cc399af4ca\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/bookings/f02edff9-c970-4dfa-90bc-b1477205919a",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "bookings",
-                "f02edff9-c970-4dfa-90bc-b1477205919a"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Cancel Booking",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/bookings/status/",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "bookings",
-                "status",
-                ""
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Reviews",
-      "item": [
-        {
-          "name": "Create Review",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    // 🟢 Customer\r\n    // \"email\": \"karim.customer@example.com\",\r\n    // \"password\": \"Password123@\"\r\n\r\n\r\n    // ⚙️ Technician\r\n    // \"email\": \"rahim.technicianh@example.com\",\r\n    // \"password\": \"123456\"\r\n\r\n\r\n    // 🔴 Admin Credentials\r\n    // \"email\": \"admin@rentnest.com\",\r\n    // \"password\": \"admin123\"\r\n}"
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/reviews",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "reviews"
-              ]
-            }
-          },
-          "response": []
-        }
-      ]
-    },
-    {
-      "name": "Payments",
-      "item": [
-        {
-          "name": "Create Intent/Session",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"bookingId\": \"8e08a54d-fdbe-42b4-b35c-0894105af625\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/payments/create",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments",
-                "create"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Create Confirm Payment",
-          "request": {
-            "method": "POST",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"paymentIntentId\": \"9202026a-908d-4e7e-a17b-a39d72889ea3\",\r\n  \"sessionId\":\"cs_test_a1B7wQnNP0MjsFDqlA5U0SB3ScdcQGcrD4BvFc9XD0VcBfPhXwKSXooBtz\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:3000/api/payments/confirm",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments",
-                "confirm"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Get Payment History",
-          "request": {
-            "method": "GET",
-            "header": []
-          },
-          "response": []
-        },
-        {
-          "name": "Get Payment Details",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:3000/api/payments/",
-              "protocol": "http",
-              "host": [
-                "localhost"
-              ],
-              "port": "3000",
-              "path": [
-                "api",
-                "payments",
-                ""
+                "admin",
+                "categories",
+                "38dad352-5309-4b47-9cdc-8139501b9fda"
               ]
             }
           },
