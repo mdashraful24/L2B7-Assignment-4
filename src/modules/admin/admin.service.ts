@@ -200,6 +200,12 @@ const getAllUsersFromDB = async (query: IGetUsersQuery) => {
             ? { isAvailable: query.isAvailable === "true" }
             : undefined;
 
+    andConditions.push({
+        role: {
+            in: ["CUSTOMER", "TECHNICIAN"],
+        },
+    });
+
     // const where: Prisma.UserWhereInput =
     //     andConditions.length > 0 ? { AND: andConditions } : {};
 
