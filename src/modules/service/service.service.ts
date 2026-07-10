@@ -20,24 +20,15 @@ const createServiceIntoDB = async (technicianId: string, payload: ICreateService
     }
 
     if (technician.role !== UserRole.TECHNICIAN) {
-        throw new SelfError(
-            "Only technicians can create services",
-            httpStatus.FORBIDDEN
-        );
+        throw new SelfError("Only technicians can create services", httpStatus.FORBIDDEN);
     }
 
     if (technician.status !== UserStatus.ACTIVE) {
-        throw new SelfError(
-            "Your account is not active",
-            httpStatus.FORBIDDEN
-        );
+        throw new SelfError("Your account is not active", httpStatus.FORBIDDEN);
     }
 
     if (!technician.technicianProfile) {
-        throw new SelfError(
-            "Technician profile not found",
-            httpStatus.NOT_FOUND
-        );
+        throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
     }
 
     await prisma.category.findUniqueOrThrow({
@@ -54,10 +45,7 @@ const createServiceIntoDB = async (technicianId: string, payload: ICreateService
     });
 
     if (existingService) {
-        throw new SelfError(
-            "You already have a service with this title",
-            httpStatus.CONFLICT
-        );
+        throw new SelfError("You already have a service with this title", httpStatus.CONFLICT);
     }
 
     const service = await prisma.service.create({
@@ -208,7 +196,8 @@ const getAllServicesWithFilter = async (query: IServices) => {
         meta: {
             page,
             limit,
-            total: totalServices
+            total: totalServices,
+            totalPage: Math.ceil(totalServices / limit),
         }
     };
 };
@@ -221,7 +210,7 @@ const getSingleService = async (serviceId: string) => {
         include: {
             category: {
                 select: {
-                    // id: true,
+                    id: true,
                     name: true,
                     description: true,
                     icon: true
@@ -229,7 +218,7 @@ const getSingleService = async (serviceId: string) => {
             },
             technician: {
                 select: {
-                    // id: true,
+                    id: true,
                     location: true,
                     rating: true,
                     totalReviews: true,
@@ -266,17 +255,11 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
     });
 
     if (!existingService) {
-        throw new SelfError(
-            "Service not found",
-            httpStatus.NOT_FOUND
-        );
+        throw new SelfError("Service not found", httpStatus.NOT_FOUND);
     }
 
     if (existingService.technician.userId !== technicianId) {
-        throw new SelfError(
-            "You are not authorized to update this service",
-            httpStatus.FORBIDDEN
-        );
+        throw new SelfError("You are not authorized to update this service", httpStatus.FORBIDDEN);
     }
 
     if (categoryId !== undefined) {
@@ -299,7 +282,7 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
         });
 
         if (duplicateService) {
-            throw new SelfError( "You already have a service with this title", httpStatus.CONFLICT );
+            throw new SelfError("You already have a service with this title", httpStatus.CONFLICT);
         }
     }
 
@@ -309,26 +292,25 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
                 id: serviceId,
             },
             data: {
-                ...(categoryId !== undefined ? { categoryId } : {}),
-                ...(title !== undefined ? { title } : {}),
-                ...(description !== undefined ? { description } : {}),
-                ...(price !== undefined ? { price } : {}),
-                ...(hourlyRate !== undefined ? { hourlyRate } : {}),
-                ...(duration !== undefined ? { duration } : {}),
-                ...(isAvailable !== undefined ? { isAvailable } : {}),
+                categoryId,
+                title,
+                description,
+                price,
+                hourlyRate,
+                duration,
+                isAvailable
             },
         });
 
-        const updatedTechnicianProfile =
-            await tx.technicianProfile.update({
-                where: {
-                    id: existingService.technicianId,
-                },
-                data: {
-                    ...(skills !== undefined ? { skills } : {}),
-                    ...(experience !== undefined ? { experience } : {}),
-                },
-            });
+        const updatedTechnicianProfile = await tx.technicianProfile.update({
+            where: {
+                id: existingService.technicianId,
+            },
+            data: {
+                skills,
+                experience
+            },
+        });
 
         return {
             service: updatedService,

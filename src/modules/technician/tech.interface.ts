@@ -41,7 +41,7 @@ export interface IAvailabilitySlotPayload {
 }
 
 export interface IUpdateAvailabilitySlotPayload {
-    id: string;
+    availabilitySlotId: string;
     dayOfWeek?: string;
     startAt?: string;
     endAt?: string;
@@ -50,6 +50,12 @@ export interface IUpdateAvailabilitySlotPayload {
 
 export interface IBookingStatusPayload {
     status?: BookingStatus;
+
+    page?: string;
+    limit?: string;
+
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
 }
 
 export interface IUpdateBookingStatus {

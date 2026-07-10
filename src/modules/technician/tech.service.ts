@@ -137,10 +137,10 @@ const getSingleTechnician = async (techId: string) => {
                 }
             },
             reviews: {
-                orderBy: {
-                    createdAt: 'desc'
-                },
-                include: {
+                select: {
+                    rating: true,
+                    comment: true,
+                    createdAt: true,
                     customer: {
                         select: {
                             name: true
@@ -148,19 +148,22 @@ const getSingleTechnician = async (techId: string) => {
                     }
                 }
             },
-            services: true,
+            services: {
+                select: {
+                    id: true,
+                    title: true,
+                    description: true,
+                    price: true,
+                    duration: true
+                }
+            },
             availability: {
-                where: {
-                    isAvailable: true
-                },
-                orderBy: [
-                    {
-                        dayOfWeek: 'asc'
-                    },
-                    {
-                        startAt: 'asc'
-                    }
-                ]
+                select: {
+                    id: true,
+                    dayOfWeek: true,
+                    startAt: true,
+                    endAt: true
+                }
             }
         }
     });
@@ -188,16 +191,8 @@ const getSingleTechnician = async (techId: string) => {
         }
     };
 
-    // Format availability slots with day names
-    // const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    // const formattedAvailability = technician.availability.map(slot => ({
-    //     ...slot,
-    //     dayName: dayNames[slot.dayOfWeek]
-    // }));
-
     return {
         ...technician,
-        // availability: formattedAvailability,
         reviewStats
     };
 };
@@ -223,21 +218,15 @@ const updateProfileFromDB = async (technicianId: string, payload: IUpdateTechnic
 
     const { name, email, password, phone, address, bio, skills, experience, description, location } = payload;
 
-    if (email) {
+    if (email && email !== technician.email) {
         const existingUser = await prisma.user.findFirst({
             where: {
                 email,
-                NOT: {
-                    id: technicianId,
-                },
             },
         });
 
         if (existingUser) {
-            throw new SelfError(
-                "Email already exists",
-                httpStatus.CONFLICT
-            );
+            throw new SelfError("Email already exists", httpStatus.CONFLICT);
         }
     }
 
@@ -336,9 +325,9 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
 };
 
 const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpdateAvailabilitySlotPayload) => {
-    const { id, dayOfWeek, startAt, endAt, isAvailable } = payload;
+    const { availabilitySlotId, dayOfWeek, startAt, endAt, isAvailable } = payload;
 
-    if (!id) {
+    if (!availabilitySlotId) {
         throw new SelfError("Availability slot ID is required", httpStatus.BAD_REQUEST);
     }
 
@@ -357,7 +346,7 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
 
     const existingSlot = await prisma.availableSlot.findFirst({
         where: {
-            id: id,
+            id: availabilitySlotId,
             technicianId: technicianProfile.id,
         },
     });
@@ -366,9 +355,9 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
         throw new SelfError("Availability slot not found", httpStatus.NOT_FOUND);
     }
 
-    const updatedAvailabilitySlot = prisma.availableSlot.update({
+    const updatedAvailabilitySlot = await prisma.availableSlot.update({
         where: {
-            id: id,
+            id: availabilitySlotId
         },
         data: {
             dayOfWeek,
@@ -382,6 +371,13 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
 };
 
 const getTechniciansBookings = async (technicianId: string, query: IBookingStatusPayload) => {
+    const limit = Number(query.limit) || 10;
+    const page = Number(query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy || "createdAt";
+    const sortOrder = query.sortOrder || "desc";
+
     const technicianProfile = await prisma.technicianProfile.findUnique({
         where: {
             userId: technicianId,
@@ -392,21 +388,23 @@ const getTechniciansBookings = async (technicianId: string, query: IBookingStatu
     });
 
     if (!technicianProfile) {
-        throw new SelfError("", httpStatus.NOT_FOUND);
+        throw new SelfError(
+            "Technician profile not found",
+            httpStatus.NOT_FOUND
+        );
     }
 
-    // const where = {
-    //     technicianId: technicianProfile.id,
-    //     ...(query.status ? { status: query.status as BookingStatus } : {}),
-    // };
+    const whereCondition = {
+        technicianId: technicianProfile.id,
+        status: query.status,
+    };
 
     const technicianBookings = await prisma.booking.findMany({
-        where: {
-            technicianId: technicianProfile.id,
-            status: query.status,
-        },
+        where: whereCondition,
+        take: limit,
+        skip,
         orderBy: {
-            createdAt: 'desc',
+            [sortBy]: sortOrder,
         },
         include: {
             customer: {
@@ -430,11 +428,23 @@ const getTechniciansBookings = async (technicianId: string, query: IBookingStatu
                     },
                     location: true,
                 },
-            }
+            },
         },
     });
 
-    return technicianBookings;
+    const totalBookings = await prisma.booking.count({
+        where: whereCondition,
+    });
+
+    return {
+        data: technicianBookings,
+        meta: {
+            page,
+            limit,
+            total: totalBookings,
+            totalPage: Math.ceil(totalBookings / limit),
+        },
+    };
 };
 
 const updateBookingStatusFromDB = async (technicianId: string, bookingId: string, payload: IUpdateBookingStatus) => {

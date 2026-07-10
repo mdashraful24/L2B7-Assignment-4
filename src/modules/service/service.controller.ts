@@ -22,10 +22,6 @@ const allServicesWithFilter = catchAsyncUtil(async(req, res)=>{
 
     const result = await serviceServices.getAllServicesWithFilter(query);
 
-    if (result.data.length === 0) {
-        throw new SelfError("No services found", httpStatus.NOT_FOUND);
-    }
-
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,

@@ -65,13 +65,13 @@ const createBookingIntoDB = async (customerId: string, payload: ICreateBooking) 
         throw new SelfError("Selected availability slot was not found or is no longer available", httpStatus.NOT_FOUND);
     }
 
-    console.log({
-        scheduledAt: bookingDateTime,
-        bookingDay: dayOfWeek,
-        slotDay: selectedSlot.dayOfWeek,
-        startAt: selectedSlot.startAt,
-        endAt: selectedSlot.endAt,
-    });
+    // console.log({
+    //     scheduledAt: bookingDateTime,
+    //     bookingDay: dayOfWeek,
+    //     slotDay: selectedSlot.dayOfWeek,
+    //     startAt: selectedSlot.startAt,
+    //     endAt: selectedSlot.endAt,
+    // });
 
     if (selectedSlot.dayOfWeek !== dayOfWeek) {
         throw new SelfError("Selected availability slot does not match the requested day", httpStatus.BAD_REQUEST);

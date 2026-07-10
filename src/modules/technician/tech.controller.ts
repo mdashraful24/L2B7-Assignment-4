@@ -9,10 +9,6 @@ const allTechnician = catchAsyncUtil(async (req, res) => {
 
     const result = await technicianService.getAllTechnician(query);
 
-    if (result.data.length === 0) {
-        throw new SelfError("No technicians found", httpStatus.NOT_FOUND);
-    }
-
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
@@ -83,15 +79,12 @@ const techniciansBookings = catchAsyncUtil(async (req, res) => {
 
     const result = await technicianService.getTechniciansBookings(technicianId, req.query);
 
-    if (result.length === 0) {
-        throw new SelfError("Technicians bookings not found", httpStatus.NOT_FOUND);
-    }
-
     sendResponse(res, {
         statusCode: httpStatus.OK,
         success: true,
         message: "Technician bookings retrieved successfully",
-        data: result
+        data: result.data,
+        meta: result.meta
     });
 });
 
