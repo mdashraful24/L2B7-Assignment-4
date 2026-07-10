@@ -103,7 +103,7 @@ ADMIN_PASSWORD=Admin@1234
 
 ## API Documentation
 
-A Postman collection is available in the `postman` folder for the main endpoints, including authentication, services, technicians, bookings, payments, reviews, and admin routes.
+A Postman collection is available in the [postman](./postman) folder for the main endpoints, including authentication, services, technicians, bookings, payments, reviews, and admin routes.
 
 ### Live API Documentation
 
