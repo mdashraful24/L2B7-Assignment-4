@@ -227,10 +227,10 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
+        // prismaErrorCode: error.code || null,
         message: errorMessage,
         name: errorName,
         errorDetails: error.stack,
-        // errorCode: error.code || null,
     });
 };
 

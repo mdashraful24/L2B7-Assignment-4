@@ -13,7 +13,7 @@ const createServiceCategoryIntoDB = async (payload: ICreateCategory) => {
     });
 
     if (existingCategory) {
-        throw new SelfError("Category already exists", httpStatus.CONFLICT);
+        throw new SelfError("Category already exists.", httpStatus.CONFLICT);
     }
 
     const category = await prisma.category.create({
@@ -38,7 +38,10 @@ const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
     // Filter by category name
     if (query.name) {
         andConditions.push({
-            name: query.name,
+            name: {
+                contains: query.name,
+                mode: "insensitive"
+            }
         });
     }
 
@@ -53,8 +56,8 @@ const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
         where: {
             AND: andConditions
         },
-        skip,
         take: limit,
+        skip: skip,
         orderBy: {
             [sortBy]: sortOrder,
         }
@@ -84,19 +87,26 @@ const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategor
     });
 
     if (!category) {
-        throw new SelfError("Category not found", httpStatus.NOT_FOUND);
+        throw new SelfError("The requested category could not be found.", httpStatus.NOT_FOUND);
+    }
+
+    if (isActive !== undefined && category.isActive === isActive) {
+        throw new SelfError(`This category is already ${isActive ? "active" : "inactive"}.`, httpStatus.CONFLICT);
     }
 
     if (name && name.trim()) {
         const existingCategory = await prisma.category.findFirst({
             where: {
-                name: name,
-                NOT: { id }
+                name: {
+                    equals: name.trim(),
+                    mode: "insensitive",
+                },
+                NOT: { id },
             },
         });
 
         if (existingCategory) {
-            throw new SelfError("Category already exists", httpStatus.CONFLICT);
+            throw new SelfError("A category with this name already exists. Please choose a different name.", httpStatus.CONFLICT);
         }
     }
 
@@ -111,31 +121,6 @@ const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategor
     });
 
     return updatedCategory;
-};
-
-const deleteServiceCategoriesFromDB = async (id: string) => {
-    const category = await prisma.category.findUnique({
-        where: { id },
-    });
-
-    if (!category) {
-        throw new SelfError("Category not found", httpStatus.NOT_FOUND);
-    }
-
-    if (!category.isActive) {
-        throw new SelfError("Category is already inactive", httpStatus.CONFLICT);
-    }
-
-    const deletedCategory = await prisma.category.update({
-        where: { id },
-        data: {
-            isActive: false,
-        },
-    });
-
-    return {
-        message: "Deleted successfully"
-    };
 };
 
 const getAllUsersFromDB = async (query: IGetUsersQuery) => {
@@ -171,14 +156,14 @@ const getAllUsersFromDB = async (query: IGetUsersQuery) => {
     // Filter by role
     if (query.role) {
         andConditions.push({
-            role: query.role as UserRole,
+            role: query.role.toUpperCase() as UserRole,
         });
     }
 
     // Filter by status
     if (query.status) {
         andConditions.push({
-            status: query.status,
+            status: query.status.toUpperCase() as UserStatus,
         });
     }
 
@@ -195,10 +180,9 @@ const getAllUsersFromDB = async (query: IGetUsersQuery) => {
         });
     }
     // (Then 2nd start)
-    const availabilityWhere =
-        query.isAvailable !== undefined
-            ? { isAvailable: query.isAvailable === "true" }
-            : undefined;
+    const availabilityWhere = query.isAvailable !== undefined
+        ? { isAvailable: query.isAvailable === "true" }
+        : undefined;
 
     andConditions.push({
         role: {
@@ -266,20 +250,19 @@ const updateUserStatusIntoDB = async (id: string, payload: IUpdateUserStatus) =>
         where: { id }
     });
 
-    if (user.status === payload.status) {
-        throw new SelfError(`User is already ${payload.status.toLowerCase()}`, httpStatus.CONFLICT);
-    }
+    const status = String(payload.status).toUpperCase() as UserStatus;
 
-    const status = payload.status.toUpperCase() as UserStatus;
     if (!Object.values(UserStatus).includes(status)) {
         throw new SelfError("Invalid user status. Allowed values are ACTIVE and BANNED.", httpStatus.BAD_REQUEST);
     }
 
+    if (user.status === status) {
+        throw new SelfError(`User is already ${status.toLowerCase()}. No changes were made.`, httpStatus.CONFLICT);
+    }
+
     const updatedUser = await prisma.user.update({
         where: { id },
-        data: {
-            status
-        },
+        data: { status },
         omit: {
             password: true,
         }
@@ -319,7 +302,7 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
 
     if (query.status) {
         andConditions.push({
-            status: query.status as BookingStatus,
+            status: query.status.toUpperCase() as BookingStatus,
         });
     }
 
@@ -327,8 +310,8 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
         where: {
             AND: andConditions,
         },
-        skip,
         take: limit,
+        skip: skip,
         orderBy: {
             [sortBy]: sortOrder,
         },
@@ -377,7 +360,6 @@ export const adminServices = {
     createServiceCategoryIntoDB,
     getAllServiceCategoriesFromDB,
     updateServiceCategoriesFromDB,
-    deleteServiceCategoriesFromDB,
     getAllUsersFromDB,
     updateUserStatusIntoDB,
     getAllBookingsFromDB,

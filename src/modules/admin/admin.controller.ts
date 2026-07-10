@@ -2,7 +2,6 @@ import httpStatus from "http-status";
 import { catchAsyncUtil } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { adminServices } from "./admin.service";
-import { SelfError } from "../../utils/errorResponse";
 
 const createServiceCategory = catchAsyncUtil(async (req, res) => {
     const result = await adminServices.createServiceCategoryIntoDB(req.body);
@@ -17,10 +16,6 @@ const createServiceCategory = catchAsyncUtil(async (req, res) => {
 
 const getAllServiceCategories = catchAsyncUtil(async (req, res) => {
     const result = await adminServices.getAllServiceCategoriesFromDB(req.query);
-
-    if (result.data.length === 0) {
-        throw new SelfError("No categories found", httpStatus.NOT_FOUND);
-    }
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -44,25 +39,8 @@ const updateServiceCategories = catchAsyncUtil(async (req, res) => {
     });
 });
 
-const deleteServiceCategories = catchAsyncUtil(async (req, res) => {
-    const { id } = req.params;
-
-    const result = await adminServices.deleteServiceCategoriesFromDB(id as string);
-
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Category deleted successfully",
-        data: result,
-    });
-});
-
 const getAllUsers = catchAsyncUtil(async (req, res) => {
     const result = await adminServices.getAllUsersFromDB(req.query);
-
-    if (result.data.length === 0) {
-        throw new SelfError("No users found", httpStatus.NOT_FOUND);
-    }
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -103,7 +81,6 @@ export const adminController = {
     createServiceCategory,
     getAllServiceCategories,
     updateServiceCategories,
-    deleteServiceCategories,
     getAllUsers,
     updateUserStatus,
     getAllBookings,

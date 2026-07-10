@@ -1,20 +1,21 @@
-import { BookingStatus, UserStatus } from "../../../generated/prisma/enums";
-import { UserWhereInput } from "../../../generated/prisma/models";
-
-export interface IGetUsersQuery extends UserWhereInput {
-    searchTerm?: string;
-    page?: string;
-    limit?: string;
-    sortOrder?: string;
-    sortBy?: string;
-    isAvailable?: string;
-}
+import { UserStatus } from "../../../generated/prisma/enums";
 
 export interface ICreateCategory {
     name: string;
     description?: string;
     icon?: string;
     isActive?: boolean;
+}
+
+export interface ICategoryQuery {
+    name?: string;
+    isActive?: string;
+
+    page?: string;
+    limit?: string;
+
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
 }
 
 export interface IUpdateCategory {
@@ -24,13 +25,19 @@ export interface IUpdateCategory {
     isActive?: boolean;
 }
 
-export interface ICategoryQuery {
-    name?: string;
-    isActive?: string;
+export interface IGetUsersQuery {
+    role?: string;
+    status?: string;
+
+    searchTerm?: string;
+
     page?: string;
     limit?: string;
-    sortBy?: string;
+
     sortOrder?: "asc" | "desc";
+    sortBy?: string;
+
+    isAvailable?: string;
 }
 
 export interface IUpdateUserStatus {
@@ -38,9 +45,9 @@ export interface IUpdateUserStatus {
 }
 
 export interface IBookingQuery {
-    searchTerm?: string;
+    status?: string;
 
-    status?: BookingStatus;
+    searchTerm?: string;
 
     page?: string;
     limit?: string;

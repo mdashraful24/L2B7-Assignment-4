@@ -20,27 +20,22 @@ router.get("/categories",
 router.patch("/categories/:id",
     authProtected(UserRole.ADMIN),
     adminController.updateServiceCategories
-)
-
-router.delete("/categories/:id",
-    authProtected(UserRole.ADMIN),
-    adminController.deleteServiceCategories
-)
+);
 
 // Users
-router.get("/users", 
-    authProtected(UserRole.ADMIN), 
+router.get("/users",
+    authProtected(UserRole.ADMIN),
     adminController.getAllUsers
 );
 
-router.patch("/users/:id", 
-    authProtected(UserRole.ADMIN), 
+router.patch("/users/:id",
+    authProtected(UserRole.ADMIN),
     adminController.updateUserStatus
 );
 
 // Bookings
-router.get("/bookings", 
-    authProtected(UserRole.ADMIN), 
+router.get("/bookings",
+    authProtected(UserRole.ADMIN),
     adminController.getAllBookings
 );
 
