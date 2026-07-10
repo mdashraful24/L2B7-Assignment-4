@@ -105,6 +105,50 @@ ADMIN_PASSWORD=Admin@1234
 
 A Postman collection is available in the `postman` folder for the main endpoints, including authentication, services, technicians, bookings, payments, reviews, and admin routes.
 
+### Live API Documentation
+
+Postman Documentation:
+https://documenter.getpostman.com/view/54687734/2sBY4LQMTR
+
+## API Routes
+
+### Authentication
+- `POST /api/auth/*`
+
+### Technicians
+- `GET /api/technicians`
+- `POST /api/technicians`
+- `PATCH /api/technicians/:id`
+
+### Services
+- `GET /api/services`
+- `POST /api/services`
+- `PATCH /api/services/:id`
+
+### Categories
+- `GET /api/categories`
+- `POST /api/categories`
+- `PATCH /api/categories/:id`
+
+### Bookings
+- `GET /api/bookings`
+- `POST /api/bookings`
+- `PATCH /api/bookings/:id`
+
+### Payments
+- `POST /api/payments`
+- `POST /api/payments/webhook`
+
+### Reviews
+- `GET /api/reviews`
+- `POST /api/reviews`
+
+### Admin
+- `GET /api/admin/users`
+- `PATCH /api/admin/users/:id`
+- `GET /api/admin/bookings`
+- `POST /api/admin/categories`
+
 ## Default Admin Credentials
 
 A default admin account is created automatically on startup if none exists.
