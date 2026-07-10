@@ -6,4 +6,3 @@ generated
 /generated/prisma
 
 .vercel
-.env.example

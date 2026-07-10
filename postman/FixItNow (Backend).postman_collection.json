@@ -48,7 +48,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"email\": \"rahim.technicianh@example.com\",\r\n    \"password\": \"123456@\"\r\n}",
+              "raw": "// {\r\n//     // \"email\": \"rahim.technicianh@example.com\",\r\n//     // \"password\": \"123456@\"\r\n// }\r\n\r\n// {\r\n//     \"email\": \"tanvir.customer@example.com\",\r\n//     \"password\": \"123456\"\r\n// }\r\n\r\n\r\n\r\n// 🔴 Admin Credential\r\n{\r\n    \"email\": \"admin@fixitnow.com\",\r\n    \"password\": \"admin123\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -127,7 +127,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/technicians?skills=[\"Electrical Repair\"]&location=Dhaka&experience=5 Years",
+              "raw": "https://fixitnow-blush.vercel.app/api/technicians",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -142,20 +142,34 @@
                 {
                   "key": "skills",
                   "value": "[\"Electrical Repair\"]",
-                  "description": "Technician skills",
-                  "type": "text"
+                  "description": "Filter by technician skill",
+                  "disabled": true
                 },
                 {
                   "key": "location",
                   "value": "Dhaka",
-                  "description": "Technician location (Dhaka, etc)",
-                  "type": "text"
+                  "description": "Filter by technician location (Dhaka, etc)",
+                  "disabled": true
                 },
                 {
                   "key": "experience",
                   "value": "5 Years",
-                  "description": "Technichian experience (5 years, etc)",
-                  "type": "text"
+                  "description": "Filter by technician experience (5 years, etc)",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "description": "createdAt, updatedAt",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "asc",
+                  "description": "asc, desc",
+                  "type": "text",
+                  "disabled": true
                 }
               ]
             }
@@ -222,7 +236,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"categoryId\": \"6e66d69a-aee8-41e7-8936-ff79ae91333c\",\r\n  \"title\": \"Custom Wooden Installation\",\r\n  \"description\": \"Design and install custom wooden cabinets for kitchens, bedrooms, and offices using high-quality materials and professional craftsmanship.\",\r\n  \"price\": 4500,\r\n  \"duration\": 240\r\n}",
+              "raw": "{\r\n  \"categoryId\": \"38dad352-5309-4b47-9cdc-8139501b9fda\",\r\n  \"title\": \"Custom Wooden Installation\",\r\n  \"description\": \"Design and install custom wooden cabinets for kitchens, bedrooms, and offices using high-quality materials and professional craftsmanship.\",\r\n  \"price\": 4500,\r\n  \"duration\": 240\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -263,7 +277,7 @@
               }
             },
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/services?name=Painting&location=Dhaka",
+              "raw": "https://fixitnow-blush.vercel.app/api/services",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -300,13 +314,13 @@
                   "key": "name",
                   "value": "Painting",
                   "description": "Category name for Filtering",
-                  "type": "text"
+                  "disabled": true
                 },
                 {
                   "key": "location",
                   "value": "Dhaka",
                   "description": "Technician location for Filtering",
-                  "type": "text"
+                  "disabled": true
                 },
                 {
                   "key": "maxPrice",
@@ -379,6 +393,36 @@
               "path": [
                 "api",
                 "categories"
+              ],
+              "query": [
+                {
+                  "key": "searchTerm",
+                  "value": "Painting",
+                  "description": "Search by category name",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "searchTerm",
+                  "value": "Furniture repair,",
+                  "description": "Search by category description",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "description": "createdAt, updatedAt",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "asc, desc",
+                  "type": "text",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -391,7 +435,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"status\": \"canclled\"\r\n}",
+              "raw": "{\r\n  \"categoryId\": \"81d76809-a9dd-4376-8dbf-dc0a800d1c90\",\r\n  \"title\": \"Custom Wooden Installation\",\r\n  \"description\": \"Design and install custom wooden cabinets for kitchens, bedrooms, and offices using high-quality materials and professional craftsmanship.\",\r\n  \"price\": 4500,\r\n  \"duration\": 240\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -399,7 +443,7 @@
               }
             },
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/bookings/status/8e08a54d-fdbe-42b4-b35c-0894105af625",
+              "raw": "https://fixitnow-blush.vercel.app/api/services/c22aebcc-ba24-47d0-bc3d-dfa0470cbef8",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -408,9 +452,8 @@
               ],
               "path": [
                 "api",
-                "bookings",
-                "status",
-                "8e08a54d-fdbe-42b4-b35c-0894105af625"
+                "services",
+                "c22aebcc-ba24-47d0-bc3d-dfa0470cbef8"
               ]
             }
           },
@@ -423,7 +466,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"dayOfWeek\": \"Friday\",\r\n  \"startAt\": \"2026-07-10T09:00:00.000Z\",\r\n  \"endAt\": \"2026-07-10T11:00:00.000Z\"\r\n}",
+              "raw": "{\r\n  \"dayOfWeek\": \"Sunday\",\r\n  \"startAt\": \"2026-07-12T09:00:00.000Z\",\r\n  \"endAt\": \"2026-07-12T11:00:00.000Z\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -454,7 +497,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"id\": \"c27413a0-a128-4588-b28c-79dc7d2e16f5\",\r\n    \"dayOfWeek\": \"Sunday\",\r\n    \"startAt\": \"2026-07-12T09:00:00.000Z\",\r\n    \"endAt\": \"2026-07-12T11:00:00.000Z\"\r\n}",
+              "raw": "{\r\n    \"availabilitySlotId\": \"7eeadc8b-425f-4066-8133-b9be385b40b0\",\r\n    \"dayOfWeek\": \"Sunday\",\r\n    \"startAt\": \"2026-07-12T10:00:00.000Z\",\r\n    \"endAt\": \"2026-07-12T12:00:00.000Z\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -495,6 +538,29 @@
                 "api",
                 "technicians",
                 "bookings"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "COMPLETED",
+                  "description": "Filter bookings using status (REQUESTED, ACCEPTED, DECLINED, PAID, IN_PROGRESS, COMPLETED, CANCELLED)",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "description": "createdAt, updatedAt, scheduledAt",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "asc, desc",
+                  "type": "text",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -507,7 +573,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"status\": \"Completed\"\r\n}",
+              "raw": "{\r\n    \"status\": \"COMPLETED\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -544,7 +610,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"technicianId\": \"43d7c931-429e-4dfb-a74a-c7f0f9acb55e\",\r\n  \"categoryId\": \"38dad352-5309-4b47-9cdc-8139501b9fda\",\r\n  \"serviceId\": \"5ce91936-acb2-4de9-918d-32112cf6a03f\",\r\n  \"availableSlotId\": \"ea9656e8-e619-43da-bcec-3ddd2eeceae8\",\r\n  \"scheduledAt\": \"2026-07-10T09:30:00.000Z\",\r\n  \"address\": \"House 15, Road 7, Uttara, Dhaka\",\r\n  \"notes\": \"Please call before arriving\",\r\n  \"totalAmount\": 1200\r\n}",
+              "raw": "{\r\n  \"technicianId\": \"43d7c931-429e-4dfb-a74a-c7f0f9acb55e\",\r\n  \"categoryId\": \"6e66d69a-aee8-41e7-8936-ff79ae91333c\",\r\n  \"serviceId\": \"e65d9f81-c641-48a9-aec8-e0e427053ccb\",\r\n  \"availableSlotId\": \"616c1cd8-e091-4514-bac7-4d897187c552\",\r\n  \"scheduledAt\": \"2026-07-11T09:30:00.000Z\",\r\n  \"address\": \"House 15, Road 7, Uttara, Dhaka\",\r\n  \"notes\": \"Please call before arriving\",\r\n  \"totalAmount\": 1200\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -583,6 +649,28 @@
               "path": [
                 "api",
                 "bookings"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "COMPLETED",
+                  "description": "Filter bookings using status (REQUESTED, ACCEPTED, DECLINED, PAID, IN_PROGRESS, COMPLETED, CANCELLED)",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "description": "createdAt, updatedAt, scheduledAt",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "asc, desc",
+                  "type": "text",
+                  "disabled": true
+                }
               ]
             }
           },
@@ -594,7 +682,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/bookings/298b1f25-b04e-4c68-b085-8129af7cf8b3",
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/8e08a54d-fdbe-42b4-b35c-0894105af625",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -604,7 +692,7 @@
               "path": [
                 "api",
                 "bookings",
-                "298b1f25-b04e-4c68-b085-8129af7cf8b3"
+                "8e08a54d-fdbe-42b4-b35c-0894105af625"
               ]
             }
           },
@@ -617,7 +705,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"notes\": \"Please call before arriving home.\"\r\n}",
+              "raw": "{\r\n    \"scheduledAt\": \"2026-07-11T09:00:00.000Z\",\r\n    \"address\": \"\",\r\n    \"notes\": \"\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -625,7 +713,7 @@
               }
             },
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/bookings/298b1f25-b04e-4c68-b085-8129af7cf8b3",
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/8e08a54d-fdbe-42b4-b35c-0894105af625",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -635,7 +723,7 @@
               "path": [
                 "api",
                 "bookings",
-                "298b1f25-b04e-4c68-b085-8129af7cf8b3"
+                "8e08a54d-fdbe-42b4-b35c-0894105af625"
               ]
             }
           },
@@ -648,7 +736,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"status\": \"Canclled\"\r\n}",
+              "raw": "{\r\n    \"status\": \"CANCELLED\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -656,7 +744,7 @@
               }
             },
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/bookings/298b1f25-b04e-4c68-b085-8129af7cf8b3",
+              "raw": "https://fixitnow-blush.vercel.app/api/bookings/status/8e08a54d-fdbe-42b4-b35c-0894105af625",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -666,7 +754,8 @@
               "path": [
                 "api",
                 "bookings",
-                "298b1f25-b04e-4c68-b085-8129af7cf8b3"
+                "status",
+                "8e08a54d-fdbe-42b4-b35c-0894105af625"
               ]
             }
           },
@@ -715,7 +804,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"paymentIntentId\": \"31f2a523-907e-46ce-9cf1-20c0dcefa8b6\",\r\n  \"sessionId\":\"cs_test_a1yF7M7qOoTYz6Mep8tu1Mni4dmI3z3UJ9nNRkPmDXFv0uiTjf2sNbiTt5\"\r\n}",
+              "raw": "{\r\n  \"paymentIntentId\": \"31f2a523-907e-46ce-9cf1-20c0dcefa8b6\",\r\n  \"sessionId\":\"cs_test_a1xxqJZnT5WQ7tTbWg1B51c7prE9aVtik5aMyWKC1Ad8Yu6zzQFhkhvano\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -794,10 +883,6 @@
           "request": {
             "method": "POST",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"paymentIntentId\": \"9202026a-908d-4e7e-a17b-a39d72889ea3\",\r\n  \"sessionId\":\"cs_test_a1B7wQnNP0MjsFDqlA5U0SB3ScdcQGcrD4BvFc9XD0VcBfPhXwKSXooBtz\"\r\n}"
-            },
             "url": {
               "raw": "https://fixitnow-blush.vercel.app/api/payments/webhook",
               "protocol": "https",
@@ -827,7 +912,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"bookingId\": \"8e08a54d-fdbe-42b4-b35c-0894105af625\",\r\n  \"rating\": 4,\r\n  \"comment\": \"Excellent service. Highly recommended.\"\r\n}",
+              "raw": "{\r\n  \"bookingId\": \"\",\r\n  \"comment\": \"\",\r\n  \"rating\": 4\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -849,6 +934,37 @@
             }
           },
           "response": []
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"comment\": \"\",\r\n    \"rating\": 4\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/reviews/94633580-57c3-4e8f-a4ff-fd1e19ebd41e",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "reviews",
+                "94633580-57c3-4e8f-a4ff-fd1e19ebd41e"
+              ]
+            }
+          },
+          "response": []
         }
       ]
     },
@@ -862,7 +978,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"name\": \"Cutting\",\r\n  \"description\": \"Furniture repair, custom woodwork, and home painting services.\",\r\n  \"icon\": \"https://example.com/icons/painting.png\"\r\n}",
+              "raw": "{\r\n  \"name\": \"\",\r\n  \"description\": \"\",\r\n  \"icon\": \"https://example.com/icons/painting.png\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -892,7 +1008,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories?name=Cutting",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -908,15 +1024,67 @@
                 {
                   "key": "name",
                   "value": "Cutting",
-                  "description": "Category name"
+                  "description": "Category name",
+                  "disabled": true
                 },
                 {
                   "key": "isActive",
-                  "value": "True",
+                  "value": "true",
                   "description": "Check category active (true or false)",
                   "type": "text",
                   "disabled": true
+                },
+                {
+                  "key": "sortBy",
+                  "value": "createdAt",
+                  "description": "Sort by createdAt or updatedAt",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "sortOrder",
+                  "value": "desc",
+                  "description": "Sort order by asc or desc",
+                  "type": "text",
+                  "disabled": true
+                },
+                {
+                  "key": "name",
+                  "value": "cutting",
+                  "disabled": true
                 }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Category",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"\",\r\n    \"description\": \"\",\r\n    \"icon\": \"https://example.com/icons/painting.png\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories/1ffeba15-b097-4932-b590-67896661b555",
+              "protocol": "https",
+              "host": [
+                "fixitnow-blush",
+                "vercel",
+                "app"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "1ffeba15-b097-4932-b590-67896661b555"
               ]
             }
           },
@@ -928,7 +1096,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/admin/users?role=TECHNICIAN",
+              "raw": "https://fixitnow-blush.vercel.app/api/admin/users",
               "protocol": "https",
               "host": [
                 "fixitnow-blush",
@@ -943,7 +1111,7 @@
               "query": [
                 {
                   "key": "searchTerm",
-                  "value": "John doe",
+                  "value": "jahid technician",
                   "description": "User name",
                   "disabled": true
                 },
@@ -951,25 +1119,24 @@
                   "key": "searchTerm",
                   "value": "technician@gmail.com",
                   "description": "User email",
-                  "type": "text",
                   "disabled": true
                 },
                 {
                   "key": "role",
                   "value": "TECHNICIAN",
                   "description": "CUSTOMER or TECHNICIAN or ADMIN",
-                  "type": "text"
+                  "disabled": true
                 },
                 {
                   "key": "status",
-                  "value": "BANNED",
+                  "value": "ACTIVE",
                   "description": "ACTIVE or BANNED",
-                  "type": "text",
                   "disabled": true
                 },
                 {
                   "key": "isAvailable",
-                  "value": "false",
+                  "value": "true",
+                  "description": "Technician availability slot filter using isAvailable",
                   "disabled": true
                 }
               ]
@@ -984,7 +1151,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"status\": \"Active\"\r\n}",
+              "raw": "{\r\n    \"status\": \"ACTIVE\"\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -1063,65 +1230,9 @@
                 {
                   "key": "status",
                   "value": "COMPLETED",
-                  "description": "Booking status",
-                  "type": "text",
+                  "description": "Filter bookings using status (REQUESTED, ACCEPTED, DECLINED, PAID, IN_PROGRESS, COMPLETED, CANCELLED)",
                   "disabled": true
                 }
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Update Category",
-          "request": {
-            "method": "PATCH",
-            "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n  \"description\": \"Furniture repair, custom woodwork services.\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories/1ffeba15-b097-4932-b590-67896661b555",
-              "protocol": "https",
-              "host": [
-                "fixitnow-blush",
-                "vercel",
-                "app"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "categories",
-                "1ffeba15-b097-4932-b590-67896661b555"
-              ]
-            }
-          },
-          "response": []
-        },
-        {
-          "name": "Delete Category",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "https://fixitnow-blush.vercel.app/api/admin/categories/38dad352-5309-4b47-9cdc-8139501b9fda",
-              "protocol": "https",
-              "host": [
-                "fixitnow-blush",
-                "vercel",
-                "app"
-              ],
-              "path": [
-                "api",
-                "admin",
-                "categories",
-                "38dad352-5309-4b47-9cdc-8139501b9fda"
               ]
             }
           },
