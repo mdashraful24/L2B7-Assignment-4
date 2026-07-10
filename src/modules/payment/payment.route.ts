@@ -31,5 +31,4 @@ router.get("/:id",
 );
 
 
-
 export const paymentRoutes = router;

@@ -8,8 +8,6 @@ import { BookingStatus, PaymentProvider, PaymentStatus } from '../../../generate
 import { ICreatePaymentConfirm } from './payment.interface';
 import { handleCheckoutCompleted, handlePaymentFailed, handlePaymentIntentSucceeded } from '../../utils/payment.utils';
 
-// const getBaseUrl = () => config.appUrl || `http://localhost:${config.port || 3000}`;
-
 const createIntentIntoStripe = async (userId: string, bookingId: string) => {
     if (!userId || !bookingId) {
         throw new SelfError("Booking or user id is required", httpStatus.BAD_REQUEST);
@@ -161,9 +159,7 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
                 }
             ].filter(
                 Boolean as unknown as (
-                    value: {
-                        sessionId?: string; paymentIntentId?: string
-                    } | null
+                    value: { sessionId?: string; paymentIntentId?: string } | null
                 ) => boolean
             )
         }
@@ -234,8 +230,12 @@ const getPaymentHistory = async (userId: string) => {
 
     const paymentHistory = await prisma.payment.findMany({
         where: { userId },
-        orderBy: { createdAt: "desc" },
-        include: { booking: true }
+        orderBy: {
+            createdAt: "desc"
+        },
+        include: {
+            booking: true
+        }
     });
 
     return paymentHistory;
@@ -270,6 +270,7 @@ const getPaymentDetails = async (userId: string, paymentId: string) => {
 
     return payment;
 };
+
 
 export const paymentServices = {
     createIntentIntoStripe,

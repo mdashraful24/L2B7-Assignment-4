@@ -71,6 +71,7 @@ const paymentDetails = catchAsyncUtil(async (req, res) => {
     });
 });
 
+
 export const paymentController = {
     createIntent,
     paymentConfirm,
