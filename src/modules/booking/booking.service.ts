@@ -1,8 +1,9 @@
 import httpStatus from 'http-status';
 import { prisma } from '../../lib/prisma';
 import { SelfError } from '../../utils/errorResponse';
-import { ICreateBooking, IUpdateBooking } from './booking.interface';
+import { ICreateBooking, IGetAllBookingsQuery, IUpdateBooking } from './booking.interface';
 import { BookingStatus } from '../../../generated/prisma/enums';
+import { BookingWhereInput } from '../../../generated/prisma/models';
 
 const createBookingIntoDB = async (customerId: string, payload: ICreateBooking) => {
     const { technicianId, categoryId, serviceId, availableSlotId, scheduledAt, address, notes, totalAmount, } = payload;
@@ -50,7 +51,7 @@ const createBookingIntoDB = async (customerId: string, payload: ICreateBooking) 
         throw new SelfError("Service not found for the selected technician and category", httpStatus.NOT_FOUND);
     }
 
-    const dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][bookingDateTime.getDay()];
+    const dayOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][bookingDateTime.getUTCDay()];
 
     const selectedSlot = await prisma.availableSlot.findFirst({
         where: {
@@ -125,12 +126,40 @@ const createBookingIntoDB = async (customerId: string, payload: ICreateBooking) 
     return createdBooking;
 };
 
-const getAllBooking = async (userId: string) => {
-    const booking = await prisma.booking.findMany({
-        where: {
+const getAllBooking = async (userId: string, query: IGetAllBookingsQuery) => {
+    const limit = query.limit ? Number(query.limit) : 10;
+    const page = query.page ? Number(query.page) : 1;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy || "createdAt";
+    const sortOrder = query.sortOrder || "desc";
+
+    const andConditions: BookingWhereInput[] = [
+        {
             customerId: userId
+        }
+    ];
+
+    if (query.status && !Object.values(BookingStatus).includes(query.status.toUpperCase() as BookingStatus)) {
+        throw new SelfError("Invalid booking status", httpStatus.BAD_REQUEST);
+    }
+
+    // Filter by status
+    if (query.status) {
+        andConditions.push({
+            status: query.status.toUpperCase() as BookingStatus,
+        });
+    }
+
+    const bookings = await prisma.booking.findMany({
+        where: {
+            AND: andConditions
         },
-        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: skip,
+        orderBy: {
+            [sortBy]: sortOrder,
+        },
         include: {
             customer: {
                 select: {
@@ -154,7 +183,21 @@ const getAllBooking = async (userId: string) => {
         },
     });
 
-    return booking;
+    const totalBookings = await prisma.booking.count({
+        where: {
+            AND: andConditions
+        }
+    });
+
+    return {
+        data: bookings,
+        meta: {
+            page,
+            limit,
+            total: totalBookings,
+            totalPage: Math.ceil(totalBookings / limit),
+        }
+    };
 };
 
 const getSingleBooking = async (userId: string, bookingId: string) => {
@@ -219,11 +262,13 @@ const updateBookingFromDB = async (userId: string, bookingId: string, payload: I
         booking.status === BookingStatus.COMPLETED ||
         booking.status === BookingStatus.CANCELLED
     ) {
-        throw new SelfError("This booking can no longer be updated.", httpStatus.BAD_REQUEST);
+        throw new SelfError(`Booking cannot be updated because its status is ${booking.status}.`, httpStatus.BAD_REQUEST);
     }
 
     const updatedBookingData = await prisma.booking.update({
-        where: { id: bookingId },
+        where: {
+            id: bookingId
+        },
         data: {
             scheduledAt: scheduledAt
                 ? new Date(scheduledAt)
@@ -260,57 +305,49 @@ const updateBookingStatusFromDB = async (userId: string, bookingId: string, stat
         throw new SelfError("Booking not found", httpStatus.NOT_FOUND);
     }
 
-    const normalizedStatus = String(status).toUpperCase();
-
-    // Customers can only cancel bookings
-    if (normalizedStatus !== BookingStatus.CANCELLED) {
-        throw new SelfError(
-            "Customers can only change booking status to CANCELLED",
-            httpStatus.BAD_REQUEST
-        );
+    if (status !== BookingStatus.CANCELLED) {
+        throw new SelfError("Customers can only change booking status to CANCELLED", httpStatus.BAD_REQUEST);
     }
 
-    // Cannot cancel once work has started or completed
-    if (booking.status === BookingStatus.IN_PROGRESS || booking.status === BookingStatus.COMPLETED) {
-        throw new SelfError(
-            "This booking can no longer be cancelled because the service has already IN_PROGRESS or been COMPLETED.",
-            httpStatus.BAD_REQUEST
-        );
+    if (
+        booking.status === BookingStatus.IN_PROGRESS ||
+        booking.status === BookingStatus.COMPLETED
+    ) {
+        throw new SelfError(`This booking cannot be cancelled because its current status is ${booking.status}.`, httpStatus.BAD_REQUEST);
     }
 
-    // Already cancelled
     if (booking.status === BookingStatus.CANCELLED) {
-        throw new SelfError(
-            "This booking has already been cancelled.",
-            httpStatus.BAD_REQUEST
-        );
+        throw new SelfError("This booking has already been cancelled.", httpStatus.BAD_REQUEST);
     }
 
-    const updatedBooking = await prisma.booking.update({
-        where: {
-            id: bookingId,
-        },
-        data: {
-            status: BookingStatus.CANCELLED,
-        },
-        include: {
-            customer: true,
-            service: true,
-            technician: true,
-        },
-    });
-
-    // Release slot after cancellation
-    if (booking.availableSlotId) {
-        await prisma.availableSlot.update({
+    const updatedBooking = await prisma.$transaction(async (tx) => {
+        const booking = await tx.booking.update({
             where: {
-                id: booking.availableSlotId,
+                id: bookingId,
             },
             data: {
-                isAvailable: true,
+                status: BookingStatus.CANCELLED,
+            },
+            include: {
+                customer: true,
+                service: true,
+                technician: true,
             },
         });
-    }
+
+        if (booking.availableSlotId) {
+            await tx.availableSlot.update({
+                where: {
+                    id: booking.availableSlotId,
+                },
+                data: {
+                    isAvailable: true,
+                },
+            });
+        }
+
+        return booking;
+    });
 
     return updatedBooking;
 };

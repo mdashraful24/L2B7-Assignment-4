@@ -20,11 +20,7 @@ const createBooking = catchAsyncUtil(async (req, res) => {
 const allBooking = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
 
-    const result = await bookingServices.getAllBooking(userId);
-
-    if (result.length === 0) {
-        throw new SelfError("No bookings available", httpStatus.NOT_FOUND);
-    }
+    const result = await bookingServices.getAllBooking(userId, req.query);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
@@ -37,6 +33,10 @@ const allBooking = catchAsyncUtil(async (req, res) => {
 const singleBookingDetails = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
     const { id } = req.params;
+
+    if (!id) {
+        throw new SelfError("Booking ID is required", httpStatus.BAD_REQUEST);
+    }
 
     const result = await bookingServices.getSingleBooking(userId, id as string);
 
@@ -66,6 +66,10 @@ const updateBookingStatus = catchAsyncUtil(async (req, res) => {
     const userId = req.user?.id as string;
     const { id } = req.params;
     const { status } = req.body;
+
+    if (!id) {
+        throw new SelfError("Booking ID is required", httpStatus.BAD_REQUEST);
+    }
 
     if (!status) {
         throw new SelfError("Status is required", httpStatus.BAD_REQUEST);

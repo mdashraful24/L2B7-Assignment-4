@@ -11,6 +11,16 @@ export interface ICreateBooking {
     totalAmount: number;
 }
 
+export interface IGetAllBookingsQuery {
+    status?: string;
+
+    page?: string;
+    limit?: string;
+
+    sortBy?: string;
+    sortOrder?: "asc" | "desc";
+}
+
 export interface IUpdateBooking {
     status?: BookingStatus;
     scheduledAt?: string;
