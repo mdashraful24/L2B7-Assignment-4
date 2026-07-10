@@ -3,3 +3,8 @@ export interface ICreateReview {
     rating: number;
     comment?: string;
 }
+
+export interface IUpdateReview {
+    comment?: string,
+    rating?: number,
+}
