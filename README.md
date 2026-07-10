@@ -103,7 +103,7 @@ ADMIN_PASSWORD=Admin@1234
 
 ## API Documentation
 
-A Postman collection is available in the [postman](./postman) folder for the main endpoints, including authentication, services, technicians, bookings, payments, reviews, and admin routes.
+A Postman collection is available in the [Postman](./postman/FixItNow (Backend).postman_collection.json) folder for the main endpoints, including authentication, services, technicians, bookings, payments, reviews, and admin routes.
 
 ### Live API Documentation
 
@@ -154,7 +154,7 @@ https://documenter.getpostman.com/view/54687734/2sBY4LQMTR
 A default admin account is created automatically on startup if none exists.
 
 - Email: `admin@fixitnow.com`
-- Password: `Admin@1234`
+- Password: `admin123`
 
 ## Notes
 
