@@ -11,8 +11,8 @@ const createReviewIntoDB = async (customerId: string, payload: ICreateReview) =>
         throw new SelfError('Booking ID is required', httpStatus.BAD_REQUEST);
     }
 
-    if (!rating || rating < 1 || rating > 5) {
-        throw new SelfError('Rating must be between 1 and 5', httpStatus.BAD_REQUEST);
+    if (rating === undefined || rating < 1 || rating > 5) {
+        throw new SelfError("Rating is required and must be between 1 to 5", httpStatus.BAD_REQUEST);
     }
 
     const booking = await prisma.booking.findFirst({
