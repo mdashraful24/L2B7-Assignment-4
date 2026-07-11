@@ -13,7 +13,7 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     //     // error: process.env.NODE_ENV === 'development' ? err : undefined,
     // });
 
-    console.log("Error : ", error);
+    // console.log("Error : ", error);
 
     let statusCode;
     let errorMessage = error.message || "Internal Server Error";
@@ -226,11 +226,15 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     // Send error response
     res.status(statusCode || httpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
-        // prismaErrorCode: error.code || null,
         message: errorMessage,
-        name: errorName,
-        errorDetails: error.stack,
+        errorDetails: {
+            name: errorName,
+            statusCode: statusCode || httpStatus.INTERNAL_SERVER_ERROR,
+            stack: error.stack,
+            prismaErrorCode: error instanceof Prisma.PrismaClientKnownRequestError
+                ? error.code
+                : undefined,
+        },
     });
 };
 
