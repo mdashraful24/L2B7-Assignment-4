@@ -103,7 +103,12 @@ ADMIN_PASSWORD=Admin@1234
 
 ## API Documentation
 
-A Postman collection is available in the [Postman](./postman/FixItNow (Backend).postman_collection.json) folder for the main endpoints, including authentication, services, technicians, bookings, payments, reviews, and admin routes.
+A Postman collection is available [here](./postman/FixItNow-Backend.postman_collection.json), covering authentication, services, technicians, bookings, payments, reviews, and admin endpoints.
+
+### Live deployment
+
+Production URL:
+https://fixitnow-blush.vercel.app
 
 ### Live API Documentation
 

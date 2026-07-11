@@ -1,6 +1,8 @@
+import httpStatus from 'http-status';
 import Stripe from "stripe";
 import { prisma } from "../lib/prisma";
 import { BookingStatus, PaymentProvider, PaymentStatus } from "../../generated/prisma/enums";
+import { SelfError } from "./errorResponse";
 
 export const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) => {
     const bookingId = session.metadata?.bookingId;
@@ -8,17 +10,16 @@ export const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) 
     const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
 
     if (!bookingId) {
-        return {
-            received: true,
-            message: "Checkout session completed without booking metadata"
-        };
+        throw new SelfError("Missing bookingId in Stripe Checkout Session metadata", httpStatus.BAD_REQUEST);
     }
 
     const payment = await prisma.payment.findFirst({
         where: {
             OR: [
                 { bookingId },
-                { sessionId: session.id }
+                {
+                    sessionId: session.id
+                }
             ]
         }
     });
@@ -44,7 +45,9 @@ export const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) 
     } else {
         await prisma.$transaction(async (tx) => {
             await tx.payment.update({
-                where: { id: payment.id },
+                where: {
+                    id: payment.id
+                },
                 data: {
                     status: PaymentStatus.COMPLETED,
                     sessionId: session.id,
@@ -58,7 +61,9 @@ export const handleCheckoutCompleted = async (session: Stripe.Checkout.Session) 
             });
 
             await tx.booking.update({
-                where: { id: bookingId },
+                where: {
+                    id: bookingId
+                },
                 data: {
                     status: BookingStatus.PAID
                 }
@@ -80,15 +85,17 @@ export const handlePaymentIntentSucceeded = async (paymentIntent: Stripe.Payment
     });
 
     if (!payment) {
+        console.warn(`Unknown payment record for succeeded payment intent ${paymentIntent.id}`);
         return {
-            received: true,
-            message: "Payment intent succeeded without a matching payment record"
+            received: true
         };
     }
 
     await prisma.$transaction(async (tx) => {
         await tx.payment.update({
-            where: { id: payment.id },
+            where: {
+                id: payment.id
+            },
             data: {
                 status: PaymentStatus.COMPLETED,
                 paidAt: new Date()
@@ -96,7 +103,9 @@ export const handlePaymentIntentSucceeded = async (paymentIntent: Stripe.Payment
         });
 
         await tx.booking.update({
-            where: { id: payment.bookingId },
+            where: {
+                id: payment.bookingId
+            },
             data: {
                 status: BookingStatus.PAID
             }
@@ -117,14 +126,16 @@ export const handlePaymentFailed = async (paymentIntent: Stripe.PaymentIntent) =
     });
 
     if (!payment) {
-        return {
-            received: true,
-            message: "Payment failed without a matching payment record"
+        console.warn(`Unknown payment record for failed payment intent ${paymentIntent.id}`);
+        return { 
+            received: true 
         };
     }
 
     await prisma.payment.update({
-        where: { id: payment.id },
+        where: {
+            id: payment.id
+        },
         data: {
             status: PaymentStatus.FAILED,
             paidAt: null
