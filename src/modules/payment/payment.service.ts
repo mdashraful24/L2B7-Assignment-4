@@ -126,16 +126,16 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
 
     if (sessionId) {
         const session = await stripe.checkout.sessions.retrieve(sessionId, {
-            expand: ['payment_intent']
+            expand: ["payment_intent"],
         });
 
-        if (typeof session.payment_intent === 'string') {
+        if (typeof session.payment_intent === "string") {
             resolvedPaymentIntentId = session.payment_intent;
         } else if (session.payment_intent?.id) {
             resolvedPaymentIntentId = session.payment_intent.id;
         }
 
-        if (session.payment_status !== 'paid') {
+        if (session.payment_status !== "paid") {
             throw new SelfError("Payment is not completed yet", httpStatus.BAD_REQUEST);
         }
     }
@@ -143,7 +143,7 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
     if (resolvedPaymentIntentId) {
         const paymentIntent = await stripe.paymentIntents.retrieve(resolvedPaymentIntentId);
 
-        if (paymentIntent.status !== 'succeeded') {
+        if (paymentIntent.status !== "succeeded") {
             throw new SelfError("Payment is not completed yet", httpStatus.BAD_REQUEST);
         }
     }
@@ -169,8 +169,12 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
         throw new SelfError("Payment not found", httpStatus.NOT_FOUND);
     }
 
-    await prisma.$transaction(async (tx) => {
-        await tx.payment.update({
+    if (payment.status === PaymentStatus.COMPLETED) {
+        throw new SelfError("Payment has already been confirmed", httpStatus.BAD_REQUEST);
+    }
+
+    const paymentResult = await prisma.$transaction(async (tx) => {
+        const updatedPayment = await tx.payment.update({
             where: {
                 id: payment.id
             },
@@ -180,19 +184,26 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
             }
         });
 
-        await tx.booking.update({
+        const updatedBooking = await tx.booking.update({
             where: {
                 id: payment.bookingId
             },
             data: {
                 status: BookingStatus.PAID
-            }
+            },
         });
+
+        return {
+            paymentId: updatedPayment.id,
+            bookingId: updatedBooking.id,
+            paymentStatus: updatedPayment.status,
+            bookingStatus: updatedBooking.status,
+            amount: updatedPayment.amount,
+            paidAt: updatedPayment.paidAt,
+        };
     });
 
-    return {
-        message: "Payment confirmed"
-    };
+    return paymentResult;
 };
 
 const handleWebhook = async (payload: Buffer, signature: string) => {
