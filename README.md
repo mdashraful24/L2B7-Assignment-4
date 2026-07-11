@@ -103,7 +103,7 @@ ADMIN_PASSWORD=Admin@1234
 
 ## API Documentation
 
-A Postman collection is available [here](./postman/FixItNow-Backend.postman_collection.json), covering authentication, services, technicians, bookings, payments, reviews, and admin endpoints.
+A Postman collection is available [here](./postman/FixItNow%20(Backend).postman_collection.json), covering authentication, services, technicians, bookings, payments, reviews, and admin endpoints.
 
 ### Live deployment
 
