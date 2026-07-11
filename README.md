@@ -115,6 +115,37 @@ https://fixitnow-blush.vercel.app
 Postman Documentation:
 https://documenter.getpostman.com/view/54687734/2sBY4LQMTR
 
+## Validation & Error Handling
+
+### Input Validation
+
+All endpoints perform server-side validation within the service layer. Required fields, resource existence checks, authorization checks, and business rule validations are enforced before processing requests. Invalid requests return meaningful error messages with appropriate HTTP status codes.
+
+### Error Response Format
+
+The API uses a consistent JSON structure for all error responses:
+
+```json
+{
+  "success": false,
+  "message": "Error message",
+  "errorDetails": {
+    "name": "Error Type",
+    "statusCode": 400,
+    "stack": "Error: Booking not found\n at ...",
+    "prismaErrorCode": "P2002"
+  }
+}
+```
+Common error types include:
+
+* Validation errors
+* Authentication and authorization errors
+* Resource not found errors
+* Business rule violations
+* Prisma database errors
+* Stripe payment errors
+
 ## API Routes
 
 ### Authentication
