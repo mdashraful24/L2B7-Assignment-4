@@ -11,8 +11,8 @@ const authProtected = (...requiredRoles: UserRole[]) => {
     return catchAsyncUtil(async (req, res, next) => {
 
         try {
-            const token = req.cookies["access-token"] ?
-                req.cookies["access-token"]
+            const token = req.cookies.accessToken ?
+                req.cookies.accessToken
                 : req.headers.authorization?.startsWith("Bearer ") ?
                     req.headers.authorization?.split(" ")[1]
                     : req.headers.authorization;

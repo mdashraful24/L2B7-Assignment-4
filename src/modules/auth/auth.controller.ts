@@ -19,14 +19,14 @@ const loginUser = catchAsyncUtil(async (req, res) => {
 
     const { accessToken, refreshToken } = result;
 
-    res.cookie("access-token", accessToken, {
+    res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: false,
         sameSite: "none",
         maxAge: 1000 * 60 * 60 * 24      // * 24 hours or 1 day
     });
 
-    res.cookie("refresh-token", refreshToken, {
+    res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: false,
         sameSite: "none",
@@ -42,11 +42,11 @@ const loginUser = catchAsyncUtil(async (req, res) => {
 });
 
 const authRefreshToken = catchAsyncUtil(async (req, res) => {
-    const refreshToken = req.cookies["refresh-token"];
+    const refreshToken = req.cookies["refreshToken"];
 
     const { accessToken } = await authService.authRefreshTokenIntoDB(refreshToken);
 
-    res.cookie("access-token", accessToken, {
+    res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: false,
         sameSite: "none",
