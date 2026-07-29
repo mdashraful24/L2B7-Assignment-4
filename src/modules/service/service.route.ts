@@ -11,7 +11,14 @@ router.post("/",
     serviceController.createService
 );
 
+// Public
 router.get("/", serviceController.allServicesWithFilter);
+
+// Private
+router.get("/my-services",
+    authProtected(UserRole.TECHNICIAN),
+    serviceController.myServices
+)
 
 router.get("/:id", serviceController.singleService);
 

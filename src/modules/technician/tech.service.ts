@@ -87,9 +87,9 @@ const getAllTechnician = async (query: ITechnician) => {
             user: {
                 omit: {
                     // id: true,
-                    email: true,
+                    // email: true,
                     password: true,
-                    role: true,
+                    // role: true,
                     createdAt: true,
                     updatedAt: true
                 },
@@ -129,9 +129,9 @@ const getSingleTechnician = async (techId: string) => {
             user: {
                 omit: {
                     id: true,
-                    email: true,
+                    // email: true,
                     password: true,
-                    role: true,
+                    // role: true,
                     createdAt: true,
                     updatedAt: true
                 }

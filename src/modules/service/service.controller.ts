@@ -17,6 +17,20 @@ const createService = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const myServices = catchAsyncUtil(async (req, res) => {
+    const technicianId = req.user?.id as string;
+    const query = req.query;
+
+    const result = await serviceServices.getMyServices(technicianId, query);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "My services retrieved successfully",
+        data: result,
+    });
+});
+
 const allServicesWithFilter = catchAsyncUtil(async(req, res)=>{
     const query = req.query;
 
@@ -69,6 +83,7 @@ const updatedService = catchAsyncUtil(async(req, res)=>{
 
 export const serviceController = {
     createService,
+    myServices,
     allServicesWithFilter,
     singleService,
     updatedService,
