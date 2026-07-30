@@ -27,5 +27,10 @@ router.patch("/:id",
     serviceController.updatedService
 );
 
+router.delete("/:id",
+    authProtected(UserRole.TECHNICIAN),
+    serviceController.deleteService
+);
+
 
 export const serviceRoutes = router;

@@ -80,6 +80,24 @@ const updatedService = catchAsyncUtil(async(req, res)=>{
     });
 });
 
+const deleteService = catchAsyncUtil(async (req, res) => {
+    const technicianId = req.user?.id as string;
+    const { id } = req.params;
+
+    if (!id) {
+        throw new SelfError("Service ID is required", httpStatus.BAD_REQUEST);
+    }
+
+    const result = await serviceServices.deleteServiceFromDB(technicianId, id as string);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Service deleted successfully",
+        data: result,
+    });
+});
+
 
 export const serviceController = {
     createService,
@@ -87,4 +105,5 @@ export const serviceController = {
     allServicesWithFilter,
     singleService,
     updatedService,
+    deleteService,
 };

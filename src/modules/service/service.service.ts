@@ -232,7 +232,11 @@ const getMyServices = async (technicianId: string, query: IServices) => {
     const page = query.page ? Number(query.page) : 1;
     const skip = (page - 1) * limit;
 
-    const sortBy = query.sortBy ? query.sortBy : "createdAt";
+    const allowedSortFields = ['createdAt', 'price', 'title', 'duration', 'isAvailable'];
+    const sortBy = query.sortBy && allowedSortFields.includes(query.sortBy)
+        ? query.sortBy
+        : "createdAt";
+
     const sortOrder = query.sortOrder ? query.sortOrder : "desc";
 
     const andConditions: ServiceWhereInput[] = [];
@@ -305,10 +309,12 @@ const getMyServices = async (technicianId: string, query: IServices) => {
         });
     }
 
-    // Always filter for available services
-    // andConditions.push({
-    //     isAvailable: true
-    // });
+    if (query.isAvailable !== undefined) {
+        const isAvailableBoolean = query.isAvailable === 'true';
+        andConditions.push({
+            isAvailable: isAvailableBoolean
+        });
+    }
 
     andConditions.push({
         technicianId: technician.technicianProfile.id,
@@ -320,9 +326,14 @@ const getMyServices = async (technicianId: string, query: IServices) => {
         },
         take: limit,
         skip,
-        orderBy: {
-            [sortBy]: sortOrder,
-        },
+        orderBy: [
+            {
+                isAvailable: "desc",
+            },
+            {
+                [sortBy]: sortOrder,
+            }
+        ],
         select: {
             id: true,
             title: true,
@@ -375,9 +386,12 @@ const getMyServices = async (technicianId: string, query: IServices) => {
 };
 
 const getSingleService = async (serviceId: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const service = await prisma.service.findUniqueOrThrow({
         where: {
-            id: serviceId
+            id: serviceId,
         },
         include: {
             category: {
@@ -385,7 +399,7 @@ const getSingleService = async (serviceId: string) => {
                     id: true,
                     name: true,
                     description: true,
-                    icon: true
+                    icon: true,
                 },
             },
             technician: {
@@ -398,19 +412,64 @@ const getSingleService = async (serviceId: string) => {
                         select: {
                             name: true,
                             phone: true,
-                            address: true
+                            address: true,
                         },
                     },
-                    availability: true,
-                    bookings: true,
+                    availability: {
+                        where: {
+                            isAvailable: true,
+                            startAt: {
+                                gte: today,
+                            },
+                        },
+                    },
+                    // bookings: true,
                     reviews: true,
                 },
             },
-        }
+        },
     });
 
     return service;
 };
+
+// const getSingleService = async (serviceId: string) => {
+//     const service = await prisma.service.findUniqueOrThrow({
+//         where: {
+//             id: serviceId
+//         },
+//         include: {
+//             category: {
+//                 select: {
+//                     id: true,
+//                     name: true,
+//                     description: true,
+//                     icon: true
+//                 },
+//             },
+//             technician: {
+//                 select: {
+//                     id: true,
+//                     location: true,
+//                     rating: true,
+//                     totalReviews: true,
+//                     user: {
+//                         select: {
+//                             name: true,
+//                             phone: true,
+//                             address: true
+//                         },
+//                     },
+//                     availability: true,
+//                     bookings: true,
+//                     reviews: true,
+//                 },
+//             },
+//         }
+//     });
+
+//     return service;
+// };
 
 const updateServiceFromDB = async (technicianId: string, serviceId: string, payload: IUpdateService) => {
     const { categoryId, title, description, price, hourlyRate, duration, isAvailable, skills, experience } = payload;
@@ -496,11 +555,39 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
     return result;
 };
 
+const deleteServiceFromDB = async (technicianId: string, serviceId: string) => {
+    const existingService = await prisma.service.findUnique({
+        where: {
+            id: serviceId,
+        },
+        include: {
+            technician: true
+        },
+    });
+
+    if (!existingService) {
+        throw new SelfError("Service not found", httpStatus.NOT_FOUND);
+    }
+
+    if (existingService.technician.userId !== technicianId) {
+        throw new SelfError("You are not authorized to delete this service", httpStatus.FORBIDDEN);
+    }
+
+    const deletedService = await prisma.service.delete({
+        where: {
+            id: serviceId,
+        },
+    });
+
+    return deletedService;
+};
+
 
 export const serviceServices = {
     createServiceIntoDB,
     getAllServicesWithFilter,
     getMyServices,
     getSingleService,
-    updateServiceFromDB
+    updateServiceFromDB,
+    deleteServiceFromDB,
 };

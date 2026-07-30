@@ -37,4 +37,5 @@ export interface IServices {
 
     sortBy?: string;
     sortOrder?: "asc" | "desc";
+    isAvailable?: string;
 }
