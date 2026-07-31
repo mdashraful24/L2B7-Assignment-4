@@ -115,6 +115,98 @@ const createIntentIntoStripe = async (userId: string, bookingId: string) => {
     };
 };
 
+// const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
+//     const { sessionId, paymentIntentId } = payload;
+
+//     if (!sessionId && !paymentIntentId) {
+//         throw new SelfError("SessionId or paymentIntentId is required", httpStatus.BAD_REQUEST);
+//     }
+
+//     let resolvedPaymentIntentId = paymentIntentId;
+
+//     if (sessionId) {
+//         const session = await stripe.checkout.sessions.retrieve(sessionId, {
+//             expand: ["payment_intent"],
+//         });
+
+//         if (typeof session.payment_intent === "string") {
+//             resolvedPaymentIntentId = session.payment_intent;
+//         } else if (session.payment_intent?.id) {
+//             resolvedPaymentIntentId = session.payment_intent.id;
+//         }
+
+//         if (session.payment_status !== "paid") {
+//             throw new SelfError("Payment is not completed yet", httpStatus.BAD_REQUEST);
+//         }
+//     }
+
+//     if (resolvedPaymentIntentId) {
+//         const paymentIntent = await stripe.paymentIntents.retrieve(resolvedPaymentIntentId);
+
+//         if (paymentIntent.status !== "succeeded") {
+//             throw new SelfError("Payment is not completed yet", httpStatus.BAD_REQUEST);
+//         }
+//     }
+
+//     const payment = await prisma.payment.findFirst({
+//         where: {
+//             OR: [
+//                 {
+//                     sessionId
+//                 },
+//                 {
+//                     paymentIntentId: resolvedPaymentIntentId
+//                 }
+//             ].filter(
+//                 Boolean as unknown as (
+//                     value: { sessionId?: string; paymentIntentId?: string } | null
+//                 ) => boolean
+//             )
+//         }
+//     });
+
+//     if (!payment) {
+//         throw new SelfError("Payment not found", httpStatus.NOT_FOUND);
+//     }
+
+//     if (payment.status === PaymentStatus.COMPLETED) {
+//         throw new SelfError("Payment has already been confirmed", httpStatus.BAD_REQUEST);
+//     }
+
+//     const paymentResult = await prisma.$transaction(async (tx) => {
+//         const updatedPayment = await tx.payment.update({
+//             where: {
+//                 id: payment.id
+//             },
+//             data: {
+//                 status: PaymentStatus.COMPLETED,
+//                 paidAt: new Date()
+//             }
+//         });
+
+//         const updatedBooking = await tx.booking.update({
+//             where: {
+//                 id: payment.bookingId
+//             },
+//             data: {
+//                 status: BookingStatus.PAID
+//             },
+//         });
+
+//         return {
+//             paymentId: updatedPayment.id,
+//             bookingId: updatedBooking.id,
+//             paymentStatus: updatedPayment.status,
+//             bookingStatus: updatedBooking.status,
+//             amount: updatedPayment.amount,
+//             paidAt: updatedPayment.paidAt,
+//         };
+//     });
+
+//     return paymentResult;
+// };
+
+
 const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
     const { sessionId, paymentIntentId } = payload;
 
@@ -151,17 +243,9 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
     const payment = await prisma.payment.findFirst({
         where: {
             OR: [
-                {
-                    sessionId
-                },
-                {
-                    paymentIntentId: resolvedPaymentIntentId
-                }
-            ].filter(
-                Boolean as unknown as (
-                    value: { sessionId?: string; paymentIntentId?: string } | null
-                ) => boolean
-            )
+                { sessionId },
+                { paymentIntentId: resolvedPaymentIntentId }
+            ].filter(Boolean)
         }
     });
 
@@ -169,8 +253,21 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
         throw new SelfError("Payment not found", httpStatus.NOT_FOUND);
     }
 
+    // If payment is already completed, return success with existing data
     if (payment.status === PaymentStatus.COMPLETED) {
-        throw new SelfError("Payment has already been confirmed", httpStatus.BAD_REQUEST);
+        const booking = await prisma.booking.findUnique({
+            where: { id: payment.bookingId }
+        });
+
+        return {
+            paymentId: payment.id,
+            bookingId: payment.bookingId,
+            paymentStatus: payment.status,
+            bookingStatus: booking?.status || BookingStatus.PAID,
+            amount: payment.amount,
+            paidAt: payment.paidAt,
+            alreadyConfirmed: true
+        };
     }
 
     const paymentResult = await prisma.$transaction(async (tx) => {
@@ -200,11 +297,13 @@ const createPaymentConfirmation = async (payload: ICreatePaymentConfirm) => {
             bookingStatus: updatedBooking.status,
             amount: updatedPayment.amount,
             paidAt: updatedPayment.paidAt,
+            alreadyConfirmed: false
         };
     });
 
     return paymentResult;
 };
+
 
 const handleWebhook = async (payload: Buffer, signature: string) => {
     const endpointSecret = config.stripe.webhookSecret;
