@@ -11,6 +11,8 @@ export interface ICategoryQuery {
     name?: string;
     isActive?: string;
 
+    searchTerm?: string;
+
     page?: string;
     limit?: string;
 

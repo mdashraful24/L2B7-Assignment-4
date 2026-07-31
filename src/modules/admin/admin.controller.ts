@@ -51,6 +51,30 @@ const getAllUsers = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const singleUserDetails = catchAsyncUtil(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await adminServices.getUserDetailsFromDB(id as string);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "User details retrieved successfully",
+        data: result,
+    });
+});
+
+const getUserStats = catchAsyncUtil(async (req, res) => {
+    const result = await adminServices.getUserStatsFromDB();
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "User stats retrieved successfully",
+        data: result,
+    });
+});
+
 const updateUserStatus = catchAsyncUtil(async (req, res) => {
     const { id } = req.params;
 
@@ -76,12 +100,28 @@ const getAllBookings = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const userSingleBooking = catchAsyncUtil(async (req, res) => {
+    const { id } = req.params;
+
+    const result = await adminServices.getUserSingleBookingFromDB(id as string);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Booking details retrieved successfully",
+        data: result,
+    });
+});
+
 
 export const adminController = {
     createServiceCategory,
     getAllServiceCategories,
     updateServiceCategories,
     getAllUsers,
+    getUserStats,
+    singleUserDetails,
     updateUserStatus,
     getAllBookings,
+    userSingleBooking
 };

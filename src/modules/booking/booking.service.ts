@@ -310,6 +310,7 @@ const updateBookingStatusFromDB = async (userId: string, bookingId: string, stat
     }
 
     if (
+        booking.status === BookingStatus.PAID ||
         booking.status === BookingStatus.IN_PROGRESS ||
         booking.status === BookingStatus.COMPLETED
     ) {

@@ -35,15 +35,29 @@ const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
 
     const andConditions: CategoryWhereInput[] = [];
 
-    // Filter by category name
-    if (query.name) {
+    // Search by name
+    if (query.searchTerm) {
         andConditions.push({
-            name: {
-                contains: query.name,
-                mode: "insensitive"
-            }
+            OR: [
+                {
+                    name: {
+                        contains: query.searchTerm,
+                        mode: "insensitive"
+                    },
+                }
+            ],
         });
     }
+
+    // Filter by category name
+    // if (query.name) {
+    //     andConditions.push({
+    //         name: {
+    //             contains: query.name,
+    //             mode: "insensitive"
+    //         }
+    //     });
+    // }
 
     // Filter by status
     if (query.isActive !== undefined) {
@@ -58,9 +72,14 @@ const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
         },
         take: limit,
         skip: skip,
-        orderBy: {
-            [sortBy]: sortOrder,
-        }
+        orderBy: [
+            {
+                isActive: "desc",
+            },
+            {
+                [sortBy]: sortOrder,
+            },
+        ],
     });
 
     const totalCategories = await prisma.category.count({
@@ -90,8 +109,21 @@ const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategor
         throw new SelfError("The requested category could not be found.", httpStatus.NOT_FOUND);
     }
 
-    if (isActive !== undefined && category.isActive === isActive) {
-        throw new SelfError(`This category is already ${isActive ? "active" : "inactive"}.`, httpStatus.CONFLICT);
+    // if (isActive !== undefined && category.isActive === isActive) {
+    //     throw new SelfError(`This category is already ${isActive ? "active" : "inactive"}.`, httpStatus.CONFLICT);
+    // }
+
+    const noChanges =
+        (name === undefined || name === category.name) &&
+        (description === undefined || description === category.description) &&
+        (icon === undefined || icon === category.icon) &&
+        (isActive === undefined || isActive === category.isActive);
+
+    if (noChanges) {
+        throw new SelfError(
+            "No changes detected.",
+            httpStatus.CONFLICT
+        );
     }
 
     if (name && name.trim()) {
@@ -245,6 +277,93 @@ const getAllUsersFromDB = async (query: IGetUsersQuery) => {
     };
 };
 
+const getUserDetailsFromDB = async (id: string) => {
+    const user = await prisma.user.findUnique({
+        where: { id },
+        select: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+            status: true,
+            createdAt: true,
+            updatedAt: true,
+            phone: true,
+            technicianProfile: {
+                select: {
+                    id: true,
+                    bio: true,
+                    skills: true,
+                    experience: true,
+                    description: true,
+                    location: true,
+                    availability: {
+                        select: {
+                            id: true,
+                            dayOfWeek: true,
+                            startAt: true,
+                            endAt: true,
+                            isAvailable: true
+                        }
+                    }
+                }
+            }
+        },
+    });
+
+    if (!user) {
+        throw new SelfError("User not found.", httpStatus.NOT_FOUND);
+    }
+
+    return user;
+};
+
+const getUserStatsFromDB = async () => {
+    const stats = await prisma.user.groupBy({
+        by: ["role", "status"],
+        _count: {
+            _all: true,
+        },
+    });
+
+    const result = {
+        totalUsers: 0,
+        totalTechnicians: 0,
+        totalCustomers: 0,
+        activeUsers: 0,
+        bannedUsers: 0,
+    };
+
+    stats.forEach((item) => {
+        const count = item._count._all;
+
+        if (
+            item.role === UserRole.CUSTOMER ||
+            item.role === UserRole.TECHNICIAN
+        ) {
+            result.totalUsers += count;
+
+            if (item.status === UserStatus.ACTIVE) {
+                result.activeUsers += count;
+            }
+
+            if (item.status === UserStatus.BANNED) {
+                result.bannedUsers += count;
+            }
+        }
+
+        if (item.role === UserRole.TECHNICIAN) {
+            result.totalTechnicians += count;
+        }
+
+        if (item.role === UserRole.CUSTOMER) {
+            result.totalCustomers += count;
+        }
+    });
+
+    return result;
+};
+
 const updateUserStatusIntoDB = async (id: string, payload: IUpdateUserStatus) => {
     const user = await prisma.user.findUniqueOrThrow({
         where: { id }
@@ -290,12 +409,12 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
                         mode: "insensitive",
                     },
                 },
-                {
-                    notes: {
-                        contains: String(query.searchTerm),
-                        mode: "insensitive",
-                    },
-                },
+                // {
+                //     notes: {
+                //         contains: String(query.searchTerm),
+                //         mode: "insensitive",
+                //     },
+                // },
             ],
         });
     }
@@ -355,12 +474,52 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
     };
 };
 
+const getUserSingleBookingFromDB = async (id: string) => {
+    const result = await prisma.booking.findUnique({
+        where: { id },
+        include: {
+            customer: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                },
+            },
+            technician: {
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            status: true
+                        }
+                    }
+                }
+            },
+            service: true,
+            availableSlot: true,
+            review: true,
+            payment: true,
+        },
+    });
+
+    if (!result) {
+        throw new SelfError("Booking not found.", httpStatus.NOT_FOUND);
+    }
+
+    return result;
+};
+
 
 export const adminServices = {
     createServiceCategoryIntoDB,
     getAllServiceCategoriesFromDB,
     updateServiceCategoriesFromDB,
     getAllUsersFromDB,
+    getUserStatsFromDB,
+    getUserDetailsFromDB,
     updateUserStatusIntoDB,
     getAllBookingsFromDB,
+    getUserSingleBookingFromDB
 };

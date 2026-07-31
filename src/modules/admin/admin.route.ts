@@ -28,6 +28,16 @@ router.get("/users",
     adminController.getAllUsers
 );
 
+router.get("/users/stats",
+    authProtected(UserRole.ADMIN),
+    adminController.getUserStats
+);
+
+router.get("/users/:id",
+    authProtected(UserRole.ADMIN),
+    adminController.singleUserDetails
+);
+
 router.patch("/users/:id",
     authProtected(UserRole.ADMIN),
     adminController.updateUserStatus
@@ -38,6 +48,11 @@ router.get("/bookings",
     authProtected(UserRole.ADMIN),
     adminController.getAllBookings
 );
+
+router.get("/bookings/:id",
+    authProtected(UserRole.ADMIN),
+    adminController.userSingleBooking
+)
 
 
 export const adminRoutes = router;
