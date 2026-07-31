@@ -10,6 +10,14 @@ import { JwtPayload, SignOptions } from 'jsonwebtoken';
 const registerUserIntoDB = async (payload: IUser) => {
     const { name, email, password, phone, role, address, bio, skills, experience, description, location } = payload;
 
+    if (!name || !email || !password) {
+        throw new SelfError("Name, email and password are required", httpStatus.BAD_REQUEST);
+    }
+
+    if (!role || !["CUSTOMER", "TECHNICIAN"].includes(role)) {
+        throw new SelfError("Role is required", httpStatus.BAD_REQUEST);
+    }
+
     // Prevent public admin registration
     if (role === "ADMIN") {
         throw new SelfError("Admin registration is not allowed", httpStatus.FORBIDDEN);

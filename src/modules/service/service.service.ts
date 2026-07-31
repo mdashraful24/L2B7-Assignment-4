@@ -158,6 +158,7 @@ const getAllServicesWithFilter = async (query: IServices) => {
             price: true,
             hourlyRate: true,
             duration: true,
+            serviceImage: true,
             isAvailable: true,
 
             category: {
@@ -338,6 +339,7 @@ const getMyServices = async (technicianId: string, query: IServices) => {
             id: true,
             title: true,
             description: true,
+            serviceImage: true,
             price: true,
             hourlyRate: true,
             duration: true,
@@ -472,7 +474,7 @@ const getSingleService = async (serviceId: string) => {
 // };
 
 const updateServiceFromDB = async (technicianId: string, serviceId: string, payload: IUpdateService) => {
-    const { categoryId, title, description, price, hourlyRate, duration, isAvailable, skills, experience } = payload;
+    const { categoryId, title, description, price, hourlyRate, duration, isAvailable, skills, experience, serviceImage } = payload;
 
     const existingService = await prisma.service.findUnique({
         where: {
@@ -532,7 +534,8 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
                 price,
                 hourlyRate,
                 duration,
-                isAvailable
+                isAvailable,
+                serviceImage
             },
         });
 

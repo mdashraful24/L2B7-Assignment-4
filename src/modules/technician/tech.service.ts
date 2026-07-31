@@ -355,15 +355,62 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
         throw new SelfError("Availability slot not found", httpStatus.NOT_FOUND);
     }
 
+    const booking = await prisma.booking.findUnique({
+        where: {
+            availableSlotId: availabilitySlotId,
+        },
+        select: {
+            id: true,
+            status: true,
+        },
+    });
+
+    if (booking && !["CANCELLED", "DECLINED"].includes(booking.status)) {
+        throw new SelfError("This availability slot has an active booking and cannot be updated.", httpStatus.CONFLICT);
+    }
+
+    if (!existingSlot.isAvailable && isAvailable !== true) {
+        throw new SelfError("This slot is currently unavailable. Please enable availability before updating.", httpStatus.BAD_REQUEST);
+    }
+
+    const updatedStartAt = startAt ? new Date(startAt) : existingSlot.startAt;
+    const updatedEndAt = endAt ? new Date(endAt) : existingSlot.endAt;
+    const updatedDayOfWeek = dayOfWeek || existingSlot.dayOfWeek;
+
+    const actualDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][updatedStartAt.getUTCDay()];
+
+    if (updatedDayOfWeek !== actualDay) {
+        throw new SelfError(`Invalid dayOfWeek. The provided startAt date falls on ${actualDay}, but received ${updatedDayOfWeek}.`, httpStatus.BAD_REQUEST);
+    }
+
+    const duplicateSlot = await prisma.availableSlot.findFirst({
+        where: {
+            technicianId: technicianProfile.id,
+            dayOfWeek: updatedDayOfWeek,
+            startAt: updatedStartAt,
+            endAt: updatedEndAt,
+            NOT: {
+                id: availabilitySlotId,
+            },
+        },
+    });
+
+    if (duplicateSlot) {
+        throw new SelfError("Availability slot already exists", httpStatus.CONFLICT);
+    }
+
     const updatedAvailabilitySlot = await prisma.availableSlot.update({
         where: {
-            id: availabilitySlotId
+            id: availabilitySlotId,
         },
         data: {
-            dayOfWeek,
-            startAt: startAt ? new Date(startAt) : undefined,
-            endAt: endAt ? new Date(endAt) : undefined,
-            isAvailable
+            dayOfWeek: updatedDayOfWeek,
+            startAt: updatedStartAt,
+            endAt: updatedEndAt,
+            isAvailable:
+                isAvailable !== undefined
+                    ? isAvailable
+                    : existingSlot.isAvailable,
         },
     });
 
@@ -429,6 +476,7 @@ const getTechniciansBookings = async (technicianId: string, query: IBookingStatu
                     location: true,
                 },
             },
+            review: true
         },
     });
 

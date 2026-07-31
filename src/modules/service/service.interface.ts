@@ -5,6 +5,7 @@ export interface ICreateService {
     price: number;
     hourlyRate?: number;
     duration: number;
+    serviceImage?: string;
     isAvailable?: boolean;
 }
 
@@ -15,6 +16,7 @@ export interface IUpdateService {
     price?: number;
     hourlyRate?: number;
     duration?: number;
+    serviceImage?: string;
     isAvailable?: boolean;
 
     // Technician profile fields

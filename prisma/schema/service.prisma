@@ -7,12 +7,13 @@ model Service {
   categoryId String
   category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  title       String
-  description String
-  price       Float
-  hourlyRate  Float?
-  duration    Int
-  isAvailable Boolean @default(true)
+  title        String
+  description  String
+  price        Float
+  hourlyRate   Float?
+  duration     Int
+  serviceImage String?
+  isAvailable  Boolean @default(true)
 
   bookings Booking[]
 
