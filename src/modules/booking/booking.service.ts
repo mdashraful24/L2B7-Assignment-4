@@ -234,7 +234,8 @@ const getSingleBooking = async (userId: string, bookingId: string) => {
                     isAvailable: true
                 }
             },
-            review: true
+            review: true,
+            payment: true
         },
     });
 

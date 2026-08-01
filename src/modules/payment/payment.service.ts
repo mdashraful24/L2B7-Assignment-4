@@ -374,7 +374,11 @@ const getPaymentDetails = async (userId: string, paymentId: string) => {
             id: paymentId,
         },
         include: {
-            booking: true,
+            booking: {
+                select: {
+                    payment: true
+                }
+            },
         },
     });
 

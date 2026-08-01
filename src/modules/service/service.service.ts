@@ -137,6 +137,17 @@ const getAllServicesWithFilter = async (query: IServices) => {
         });
     }
 
+    // Filter by rating
+    if (query.rating) {
+        andConditions.push({
+            technician: {
+                rating: {
+                    equals: Number(query.rating),
+                },
+            },
+        });
+    }
+
     // Always filter for available services
     andConditions.push({
         isAvailable: true
