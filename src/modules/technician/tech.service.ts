@@ -158,12 +158,17 @@ const getSingleTechnician = async (techId: string) => {
                 }
             },
             availability: {
+                orderBy: {
+                    createdAt: "desc",
+                },
                 select: {
                     id: true,
                     dayOfWeek: true,
                     startAt: true,
-                    endAt: true
-                }
+                    endAt: true,
+                    isAvailable: true,
+                    createdAt: true,
+                },
             }
         }
     });
