@@ -455,6 +455,7 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
                 }
             },
             service: true,
+            review: true,
         },
     });
 

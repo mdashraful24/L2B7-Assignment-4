@@ -180,6 +180,7 @@ const getAllBooking = async (userId: string, query: IGetAllBookingsQuery) => {
                 }
             },
             service: true,
+            review: true,
         },
     });
 

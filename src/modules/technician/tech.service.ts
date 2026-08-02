@@ -279,6 +279,19 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
         throw new SelfError("dayOfWeek, startAt and endAt are required", httpStatus.BAD_REQUEST);
     }
 
+    const startDate = new Date(startAt);
+    const endDate = new Date(endAt);
+
+    // Validate date format
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+        throw new SelfError("Invalid date format", httpStatus.BAD_REQUEST);
+    }
+
+    // Validate time range
+    if (startDate >= endDate) {
+        throw new SelfError("startAt must be earlier than endAt", httpStatus.BAD_REQUEST);
+    }
+
     const technicianProfile = await prisma.technicianProfile.findUnique({
         where: {
             userId: technicianId,
@@ -294,12 +307,23 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
         throw new SelfError("Technician profile not found", httpStatus.NOT_FOUND);
     }
 
+    // Bangladesh timezone day validation
+    const actualDay = new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        timeZone: "Asia/Dhaka",
+    }).format(startDate);
+
+    if (dayOfWeek !== actualDay) {
+        throw new SelfError(`Invalid dayOfWeek. The provided startAt falls on ${actualDay} in Bangladesh timezone, but received ${dayOfWeek}.`, httpStatus.BAD_REQUEST);
+    }
+
+    // Check duplicate slot
     const existingSlot = await prisma.availableSlot.findFirst({
         where: {
             technicianId: technicianProfile.id,
             dayOfWeek,
-            startAt: new Date(startAt),
-            endAt: new Date(endAt),
+            startAt: startDate,
+            endAt: endDate,
         },
     });
 
@@ -307,21 +331,36 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
         throw new SelfError("Availability slot already exists", httpStatus.CONFLICT);
     }
 
-    const actualDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][new Date(startAt).getUTCDay()];
+    // Check overlapping slots
+    const overlappingSlot = await prisma.availableSlot.findFirst({
+        where: {
+            technicianId: technicianProfile.id,
+            dayOfWeek,
+            AND: [
+                {
+                    startAt: {
+                        lt: endDate,
+                    },
+                },
+                {
+                    endAt: {
+                        gt: startDate,
+                    },
+                },
+            ],
+        },
+    });
 
-    if (dayOfWeek !== actualDay) {
-        throw new SelfError(
-            `Invalid dayOfWeek. The provided startAt date falls on ${actualDay}, but received ${dayOfWeek}.`,
-            httpStatus.BAD_REQUEST
-        );
+    if (overlappingSlot) {
+        throw new SelfError("Time slot overlaps with an existing availability slot", httpStatus.CONFLICT);
     }
 
     const availableTimeSlot = await prisma.availableSlot.create({
         data: {
             technicianId: technicianProfile.id,
             dayOfWeek,
-            startAt: new Date(startAt),
-            endAt: new Date(endAt),
+            startAt: startDate,
+            endAt: endDate,
             isAvailable: isAvailable ?? true,
         },
     });
@@ -378,16 +417,38 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
         throw new SelfError("This slot is currently unavailable. Please enable availability before updating.", httpStatus.BAD_REQUEST);
     }
 
-    const updatedStartAt = startAt ? new Date(startAt) : existingSlot.startAt;
-    const updatedEndAt = endAt ? new Date(endAt) : existingSlot.endAt;
+    const updatedStartAt = startAt
+        ? new Date(startAt)
+        : existingSlot.startAt;
+
+    const updatedEndAt = endAt
+        ? new Date(endAt)
+        : existingSlot.endAt;
+
     const updatedDayOfWeek = dayOfWeek || existingSlot.dayOfWeek;
 
-    const actualDay = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",][updatedStartAt.getUTCDay()];
-
-    if (updatedDayOfWeek !== actualDay) {
-        throw new SelfError(`Invalid dayOfWeek. The provided startAt date falls on ${actualDay}, but received ${updatedDayOfWeek}.`, httpStatus.BAD_REQUEST);
+    // Validate date format
+    if (isNaN(updatedStartAt.getTime()) || isNaN(updatedEndAt.getTime())) {
+        throw new SelfError("Invalid date format", httpStatus.BAD_REQUEST);
     }
 
+    // Validate start and end time
+    if (updatedStartAt >= updatedEndAt) {
+        throw new SelfError("startAt must be earlier than endAt", httpStatus.BAD_REQUEST);
+    }
+
+    // Bangladesh timezone validation
+    const actualDay = new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        timeZone: "Asia/Dhaka",
+    }).format(updatedStartAt);
+
+
+    if (updatedDayOfWeek !== actualDay) {
+        throw new SelfError(`Invalid dayOfWeek. The provided startAt falls on ${actualDay} in Bangladesh timezone, but received ${updatedDayOfWeek}.`, httpStatus.BAD_REQUEST);
+    }
+
+    // Duplicate check
     const duplicateSlot = await prisma.availableSlot.findFirst({
         where: {
             technicianId: technicianProfile.id,
@@ -402,6 +463,33 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
 
     if (duplicateSlot) {
         throw new SelfError("Availability slot already exists", httpStatus.CONFLICT);
+    }
+
+    // Overlap check
+    const overlappingSlot = await prisma.availableSlot.findFirst({
+        where: {
+            technicianId: technicianProfile.id,
+            dayOfWeek: updatedDayOfWeek,
+            AND: [
+                {
+                    startAt: {
+                        lt: updatedEndAt,
+                    },
+                },
+                {
+                    endAt: {
+                        gt: updatedStartAt,
+                    },
+                },
+            ],
+            NOT: {
+                id: availabilitySlotId,
+            },
+        },
+    });
+
+    if (overlappingSlot) {
+        throw new SelfError("Time slot overlaps with an existing availability slot", httpStatus.CONFLICT);
     }
 
     const updatedAvailabilitySlot = await prisma.availableSlot.update({
