@@ -6,6 +6,7 @@ import { SelfError } from "../../utils/errorResponse";
 import bcrypt from 'bcryptjs';
 import config from '../../config';
 import { BookingStatus, UserRole } from '../../../generated/prisma/enums';
+import { validateSameDhakaDay } from '../../utils/validateSameDhakaDay';
 
 const getAllTechnician = async (query: ITechnician) => {
     const limit = query.limit ? Number(query.limit) : 10;
@@ -292,6 +293,9 @@ const createAvailabilitySlotIntoDB = async (technicianId: string, payload: IAvai
         throw new SelfError("startAt must be earlier than endAt", httpStatus.BAD_REQUEST);
     }
 
+    // Ensure slot stays within the same day (Bangladesh timezone)
+    validateSameDhakaDay(startDate, endDate);
+
     const technicianProfile = await prisma.technicianProfile.findUnique({
         where: {
             userId: technicianId,
@@ -437,12 +441,14 @@ const updateAvailabilitySlotFromDB = async (technicianId: string, payload: IUpda
         throw new SelfError("startAt must be earlier than endAt", httpStatus.BAD_REQUEST);
     }
 
+    // Ensure slot stays within the same day (Bangladesh timezone)
+    validateSameDhakaDay(updatedStartAt, updatedEndAt);
+
     // Bangladesh timezone validation
     const actualDay = new Intl.DateTimeFormat("en-US", {
         weekday: "long",
         timeZone: "Asia/Dhaka",
     }).format(updatedStartAt);
-
 
     if (updatedDayOfWeek !== actualDay) {
         throw new SelfError(`Invalid dayOfWeek. The provided startAt falls on ${actualDay} in Bangladesh timezone, but received ${updatedDayOfWeek}.`, httpStatus.BAD_REQUEST);

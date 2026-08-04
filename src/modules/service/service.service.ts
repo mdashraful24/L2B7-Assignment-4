@@ -192,6 +192,7 @@ const getAllServicesWithFilter = async (query: IServices) => {
                             name: true,
                         },
                     },
+                    reviews: true
                 },
             },
         },
