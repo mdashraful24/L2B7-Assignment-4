@@ -2,7 +2,7 @@ import httpStatus from 'http-status';
 import { prisma } from '../../lib/prisma';
 import { SelfError } from '../../utils/errorResponse';
 import { BookingStatus } from '../../../generated/prisma/enums';
-import { ICreateReview, IUpdateReview } from './review.interface';
+import { ICreateReview, IGetReview, IUpdateReview } from './review.interface';
 
 const createReviewIntoDB = async (customerId: string, payload: ICreateReview) => {
     const { bookingId, rating, comment } = payload;
@@ -70,6 +70,29 @@ const createReviewIntoDB = async (customerId: string, payload: ICreateReview) =>
     });
 
     return review;
+};
+
+const getAllReviewsFromDB = async (query: IGetReview) => {
+    const reviews = await prisma.review.findMany({
+        where: query,
+        include: {
+            customer: {
+                select: {
+                    name: true,
+                    role: true,
+                }
+            },
+        },
+        orderBy: {
+            createdAt: 'desc'
+        }
+    });
+
+    if (reviews.length === 0) {
+        throw new SelfError("No review found!", httpStatus.NOT_FOUND);
+    }
+
+    return reviews;
 };
 
 const updateReviewFromDB = async (customerId: string, reviewId: string, payload: IUpdateReview) => {
@@ -142,5 +165,6 @@ const updateReviewFromDB = async (customerId: string, reviewId: string, payload:
 
 export const reviewServices = {
     createReviewIntoDB,
+    getAllReviewsFromDB,
     updateReviewFromDB
 };

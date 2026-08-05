@@ -11,6 +11,8 @@ router.post("/",
     reviewController.createReview
 );
 
+router.get("/", reviewController.getAllReviews);
+
 router.patch("/:id",
     authProtected(UserRole.CUSTOMER),
     reviewController.updateReview

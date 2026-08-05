@@ -17,6 +17,17 @@ const createReview = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const getAllReviews = catchAsyncUtil(async (req, res) => {
+    const result = await reviewServices.getAllReviewsFromDB(req.query);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Reviews fetched successfully",
+        data: result,
+    })
+})
+
 const updateReview = catchAsyncUtil(async (req, res) => {
     const customerId = req.user?.id as string;
     const { id } = req.params;
@@ -38,5 +49,6 @@ const updateReview = catchAsyncUtil(async (req, res) => {
 
 export const reviewController = {
     createReview,
+    getAllReviews,
     updateReview
 };

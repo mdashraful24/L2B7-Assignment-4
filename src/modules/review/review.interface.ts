@@ -4,6 +4,12 @@ export interface ICreateReview {
     comment?: string;
 }
 
+export interface IGetReview {
+    rating?: number;
+    comment?: string;
+    createdAt?: string;
+}
+
 export interface IUpdateReview {
     comment?: string,
     rating?: number,
