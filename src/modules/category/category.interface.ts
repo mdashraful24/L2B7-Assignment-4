@@ -5,7 +5,9 @@ export interface ICategory {
     isActive?: boolean;
 }
 
-export interface IAllCategories{
+export interface IAllCategories {
+    isActive?: string;
+
     searchTerm?: string;
 
     page?: string;

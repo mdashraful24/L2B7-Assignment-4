@@ -95,7 +95,85 @@ const getAllServiceCategories = async (query: IAllCategories) => {
     };
 };
 
+const getAllPublicCategoriesFromDB = async (query: IAllCategories) => {
+    const limit = query.limit ? Number(query.limit) : 10;
+    const page = query.page ? Number(query.page) : 1;
+    const skip = (page - 1) * limit;
+
+    const sortBy = query.sortBy ? query.sortBy : "createdAt";
+    const sortOrder = query.sortOrder ? query.sortOrder : "desc";
+
+    const andConditions: CategoryWhereInput[] = [];
+
+    // Search by name
+    if (query.searchTerm) {
+        andConditions.push({
+            OR: [
+                {
+                    name: {
+                        contains: query.searchTerm,
+                        mode: "insensitive"
+                    },
+                }
+            ],
+        });
+    }
+
+    // Filter by category name
+    // if (query.name) {
+    //     andConditions.push({
+    //         name: {
+    //             contains: query.name,
+    //             mode: "insensitive"
+    //         }
+    //     });
+    // }
+
+    // Filter by status
+    // if (query.isActive !== undefined) {
+    //     andConditions.push({
+    //         isActive: query.isActive === "true",
+    //     });
+    // }
+
+    andConditions.push({
+        isActive: true
+    });
+
+    const categories = await prisma.category.findMany({
+        where: {
+            AND: andConditions
+        },
+        take: limit,
+        skip: skip,
+        orderBy: [
+            {
+                isActive: "desc",
+            },
+            {
+                [sortBy]: sortOrder,
+            },
+        ],
+    });
+
+    const totalCategories = await prisma.category.count({
+        where: {
+            AND: andConditions
+        }
+    });
+
+    return {
+        data: categories,
+        meta: {
+            page,
+            limit,
+            total: totalCategories,
+        },
+    };
+};
+
 
 export const categoryServices = {
     getAllServiceCategories,
+    getAllPublicCategoriesFromDB
 };
