@@ -17,5 +17,10 @@ router.get("/me",
     authController.getMe
 );
 
+router.put("/update/me",
+    authProtected(UserRole.CUSTOMER, UserRole.ADMIN),
+    authController.updateMe
+);
+
 
 export const authRoutes = router;

@@ -94,6 +94,7 @@ const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
             page,
             limit,
             total: totalCategories,
+            totalPage: Math.ceil(totalCategories / limit),
         },
     };
 };
@@ -273,6 +274,7 @@ const getAllUsersFromDB = async (query: IGetUsersQuery) => {
             page,
             limit,
             total: totalUsers,
+            totalPage: Math.ceil(totalUsers / limit),
         },
     };
 };
@@ -471,6 +473,7 @@ const getAllBookingsFromDB = async (query: IBookingQuery) => {
             page,
             limit,
             total: totalBookings,
+            totalPage: Math.ceil(totalBookings / limit),
         },
     };
 };

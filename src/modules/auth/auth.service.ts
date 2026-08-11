@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import bcrypt from "bcryptjs";
 import { prisma } from "../../lib/prisma";
-import { ILoginUser, IUser } from "./auth.interface";
+import { ILoginUser, IUpdateMe, IUser } from "./auth.interface";
 import config from "../../config";
 import { SelfError } from "../../utils/errorResponse";
 import { jwtUtils } from '../../utils/jwt';
@@ -179,10 +179,97 @@ const getMeFromDB = async (userId: string) => {
     return user;
 };
 
+const updateMeFromDB = async (userId: string, payload: IUpdateMe) => {
+    const user = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+    });
+
+    if (!user) {
+        throw new SelfError("User not found", httpStatus.NOT_FOUND);
+    }
+
+    const {
+        name,
+        email,
+        password,
+        phone,
+        address,
+    } = payload;
+
+    // Check duplicate email
+    if (email && email !== user.email) {
+        const existingUser = await prisma.user.findFirst({
+            where: {
+                email,
+                NOT: {
+                    id: userId,
+                },
+            },
+        });
+
+        if (existingUser) {
+            throw new SelfError("Email already exists", httpStatus.CONFLICT);
+        }
+    }
+
+    const updateData: {
+        name?: string;
+        email?: string;
+        password?: string;
+        phone?: string;
+        address?: string;
+    } = {};
+
+    // Check changed fields
+    if (name !== undefined && name !== user.name) {
+        updateData.name = name;
+    }
+
+    if (email !== undefined && email !== user.email) {
+        updateData.email = email;
+    }
+
+    if (phone !== undefined && phone !== user.phone) {
+        updateData.phone = phone;
+    }
+
+    if (address !== undefined && address !== user.address) {
+        updateData.address = address;
+    }
+
+    // Password is always considered changed when provided
+    if (password?.trim()) {
+        updateData.password = await bcrypt.hash(
+            password,
+            Number(config.security.bcryptSaltRounds)
+        );
+    }
+
+    // No changes detected
+    if (Object.keys(updateData).length === 0) {
+        throw new SelfError("No changes detected. Please update at least one field.", httpStatus.BAD_REQUEST);
+    }
+
+    const updatedProfile = await prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: updateData,
+        omit: {
+            password: true,
+        },
+    });
+
+    return updatedProfile;
+};
+
 
 export const authService = {
     registerUserIntoDB,
     loginUserIntoDB,
     authRefreshTokenIntoDB,
-    getMeFromDB
+    getMeFromDB,
+    updateMeFromDB
 };

@@ -21,3 +21,11 @@ export interface ILoginUser {
     email: string;
     password: string;
 }
+
+export interface IUpdateMe {
+    name?: string;
+    email?: string;
+    password?: string;
+    phone?: string;
+    address?: string;
+}

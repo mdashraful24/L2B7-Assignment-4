@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { catchAsyncUtil } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { authService } from "./auth.service";
+import { SelfError } from '../../utils/errorResponse';
 
 const registerUser = catchAsyncUtil(async (req, res) => {
     const result = await authService.registerUserIntoDB(req.body);
@@ -61,7 +62,7 @@ const authRefreshToken = catchAsyncUtil(async (req, res) => {
     });
 });
 
-const getMe = catchAsyncUtil(async(req, res)=>{
+const getMe = catchAsyncUtil(async (req, res) => {
     const result = await authService.getMeFromDB(req.user?.id as string);
 
     sendResponse(res, {
@@ -72,10 +73,28 @@ const getMe = catchAsyncUtil(async(req, res)=>{
     });
 });
 
+const updateMe = catchAsyncUtil(async (req, res) => {
+    const userId = req.user?.id;
+
+    if (!userId) {
+        throw new SelfError("User not authenticated", httpStatus.UNAUTHORIZED);
+    }
+
+    const result = await authService.updateMeFromDB(userId, req.body);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Profile updated successfully",
+        data: result,
+    });
+});
+
 
 export const authController = {
     registerUser,
     loginUser,
     authRefreshToken,
-    getMe
+    getMe,
+    updateMe
 };
