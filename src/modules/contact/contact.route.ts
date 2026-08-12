@@ -12,4 +12,9 @@ router.get("/",
     contactController.allContacts
 );
 
+router.get("/:id",
+    authProtected(UserRole.ADMIN),
+    contactController.singleContact
+);
+
 export const contactRoutes = router;
