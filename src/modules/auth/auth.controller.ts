@@ -42,6 +42,35 @@ const loginUser = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const googleLogin = catchAsyncUtil(async(req, res)=>{
+    const payload = req.body;
+
+    const result = await authService.googleLoginIntoDB(payload);
+
+    const { accessToken, refreshToken } = result;
+
+    res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24      // * 24 hours or 1 day
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24 * 7        // * 7 days
+    });
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "User logged in successfully",
+        data: result
+    });
+});
+
 const authRefreshToken = catchAsyncUtil(async (req, res) => {
     const refreshToken = req.cookies["refreshToken"];
 
@@ -94,6 +123,7 @@ const updateMe = catchAsyncUtil(async (req, res) => {
 export const authController = {
     registerUser,
     loginUser,
+    googleLogin,
     authRefreshToken,
     getMe,
     updateMe

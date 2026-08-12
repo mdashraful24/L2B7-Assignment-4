@@ -1,14 +1,19 @@
 model User {
-  id        String     @id @default(uuid())
-  name      String     @db.VarChar(255)
-  email     String     @unique
-  password  String
-  role      UserRole
-  status    UserStatus @default(ACTIVE)
-  phone     String?
-  address   String?
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  id                 String       @id @default(uuid())
+  name               String       @db.VarChar(255)
+  email              String       @unique
+  password           String?
+  googleId           String?      @unique
+  authProvider       AuthProvider @default(CREDENTIAL)
+  emailVerified      Boolean      @default(false)
+  role               UserRole
+  status             UserStatus   @default(ACTIVE)
+  needPasswordChange Boolean      @default(false)
+  isDeleted          Boolean      @default(false)
+  phone              String?
+  address            String?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
 
   technicianProfile TechnicianProfile?
   bookings          Booking[]          @relation("CustomerBookings")

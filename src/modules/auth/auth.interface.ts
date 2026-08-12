@@ -29,3 +29,8 @@ export interface IUpdateMe {
     phone?: string;
     address?: string;
 }
+
+export interface IGoogleLoginPayload {
+    idToken: string;
+    role: UserRole;
+}

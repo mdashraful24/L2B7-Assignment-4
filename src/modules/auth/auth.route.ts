@@ -10,6 +10,8 @@ router.post("/register", authController.registerUser);
 
 router.post("/login", authController.loginUser);
 
+router.post("/google-login", authController.googleLogin);
+
 router.post("/refresh-token", authController.authRefreshToken);
 
 router.get("/me",
