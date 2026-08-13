@@ -3,14 +3,9 @@ export interface ICreateContact {
     email: string;
     subject: string;
     message: string;
-};
+}
 
 export interface IGetAllContactInfo {
-    name?: string;
-    email?: string;
-    subject?: string;
-    message?: string;
-
     searchTerm?: string;
 
     page?: string;
@@ -18,4 +13,12 @@ export interface IGetAllContactInfo {
 
     sortOrder?: "asc" | "desc";
     sortBy?: string;
+}
+
+export interface IContactUser {
+    userId: string;
+}
+
+export interface IReplyContact {
+    reply: string;
 }

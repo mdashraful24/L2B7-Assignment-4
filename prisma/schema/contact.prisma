@@ -1,12 +1,22 @@
 model Contact {
-    id String @id @default(uuid())
-    name String
-    email String
+    id      String @id @default(uuid())
+    name    String
+    email   String
     subject String
     message String
+
+    userId String
+    user   User   @relation("ContactOwner", fields: [userId], references: [id], onDelete: Cascade)
+
+    reply       String?
+    repliedAt   DateTime?
+    repliedById String?
+    repliedBy   User?     @relation("ContactReplies", fields: [repliedById], references: [id], onDelete: SetNull)
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
+    @@index([userId])
+    @@index([repliedById])
     @@map("contacts")
 }

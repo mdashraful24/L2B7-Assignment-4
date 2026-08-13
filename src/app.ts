@@ -52,7 +52,7 @@ app.use("/api/categories", categoryRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
-app.use("/api/contact/", contactRoutes);
+app.use("/api/contacts/", contactRoutes);
 app.use("/api/admin", adminRoutes);
 
 
