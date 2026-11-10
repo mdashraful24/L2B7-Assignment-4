@@ -63,25 +63,24 @@ This project provides a RESTful API built with Node.js, Express, TypeScript, Pri
 
 ### Prerequisites
 
-- Node.js 18+
+- Bun 1.2+
 - PostgreSQL database
-- npm or pnpm
 
 ### Installation
 
 1. Clone the repository
 2. Install dependencies:
    ```bash
-   npm install
+   bun install
    ```
 3. Configure environment variables in a `.env` file
 4. Run Prisma migrations:
    ```bash
-   npx prisma migrate dev
+   bunx prisma migrate dev
    ```
 5. Start the development server:
    ```bash
-   npm run dev
+   bun run dev
    ```
 
 ## Environment Variables
@@ -196,6 +195,6 @@ A default admin account is created automatically on startup if none exists.
 
 - Stripe webhooks should be tested locally with:
   ```bash
-  npm run stripe:webhook
+  bun run stripe:webhook
   ```
 - The API returns consistent JSON responses for both success and error cases.
