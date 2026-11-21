@@ -3,6 +3,7 @@ import config from "./config";
 import logger from "./logger";
 import { prisma } from "./lib/prisma";
 import { cloudinary } from "./lib/cloudinary";
+import { seed } from "./utils/seed";
 
 // Project running port
 const PORT = config.port;
@@ -11,6 +12,9 @@ async function main() {
     try {
         await prisma.$connect();
         logger.info("Connected to the database successfully.");
+
+        await seed();
+        logger.info("Database seeding completed.");
 
         await cloudinary.api.ping();
         logger.info("Cloudinary configured successfully.");

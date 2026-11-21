@@ -38,6 +38,12 @@ const config = {
         cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
         apiKey: process.env.CLOUDINARY_API_KEY!,
         apiSecret: process.env.CLOUDINARY_API_SECRET!
+    },
+
+    seed: {
+        technicianName: process.env.SEED_TECHNICIAN_NAME!,
+        technicianEmail: process.env.SEED_TECHNICIAN_EMAIL!,
+        technicianPassword: process.env.SEED_TECHNICIAN_PASSWORD!
     }
 };
 
