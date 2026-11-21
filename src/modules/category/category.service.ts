@@ -63,6 +63,7 @@ const getAllServiceCategories = async (query: IAllCategories) => {
             name: true,
             description: true,
             icon: true,
+            categoryImage: true,
             services: {
                 where: {
                     isAvailable: true,

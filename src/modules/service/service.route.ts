@@ -2,12 +2,14 @@ import { Router } from "express";
 import { serviceController } from "./service.controller";
 import authProtected from "../../middlewares/authProtected";
 import { UserRole } from "../../../generated/prisma/enums";
+import { upload } from "../../lib/multer";
 
 const router = Router();
 
 
 router.post("/",
     authProtected(UserRole.TECHNICIAN),
+    upload.single("serviceImage"),
     serviceController.createService
 );
 
@@ -24,6 +26,7 @@ router.get("/:id", serviceController.singleService);
 
 router.patch("/:id",
     authProtected(UserRole.TECHNICIAN),
+    upload.single("serviceImage"),
     serviceController.updatedService
 );
 

@@ -4,6 +4,7 @@ export interface ICreateCategory {
     name: string;
     description?: string;
     icon?: string;
+    categoryImage?: string;
     isActive?: boolean;
 }
 
@@ -24,6 +25,7 @@ export interface IUpdateCategory {
     name?: string;
     description?: string;
     icon?: string;
+    categoryImage?: string;
     isActive?: boolean;
 }
 

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { adminController } from "./admin.controller";
 import authProtected from "../../middlewares/authProtected";
 import { UserRole } from "../../../generated/prisma/enums";
+import { upload } from "../../lib/multer";
 
 const router = Router();
 
@@ -9,6 +10,7 @@ const router = Router();
 // Categories
 router.post("/categories",
     authProtected(UserRole.ADMIN),
+    upload.single("categoryImage"),
     adminController.createServiceCategory
 );
 
@@ -19,6 +21,7 @@ router.get("/categories",
 
 router.patch("/categories/:id",
     authProtected(UserRole.ADMIN),
+    upload.single("categoryImage"),
     adminController.updateServiceCategories
 );
 

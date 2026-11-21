@@ -1,11 +1,54 @@
+import type { UploadApiResponse } from 'cloudinary';
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../lib/cloudinary";
 import { SelfError } from "../../utils/errorResponse";
 import { ICreateService, IUpdateService, IServices } from "./service.interface";
 import { UserRole, UserStatus } from '../../../generated/prisma/enums';
 import { ServiceWhereInput } from '../../../generated/prisma/models';
 
-const createServiceIntoDB = async (technicianId: string, payload: ICreateService) => {
+const toNumber = (value: unknown, field: string) => {
+    const converted = Number(value);
+
+    if (Number.isNaN(converted)) {
+        throw new SelfError(`${field} must be a valid number`, httpStatus.BAD_REQUEST);
+    }
+
+    return converted;
+};
+
+const normalizeServicePayload = <T extends ICreateService | IUpdateService>(payload: T): T => {
+    const normalized = { ...payload } as Record<string, unknown>;
+
+    if (normalized.price !== undefined) {
+        normalized.price = toNumber(normalized.price, "Price");
+    }
+
+    if (normalized.hourlyRate !== undefined) {
+        normalized.hourlyRate = toNumber(normalized.hourlyRate, "Hourly rate");
+    }
+
+    if (normalized.duration !== undefined) {
+        normalized.duration = toNumber(normalized.duration, "Duration");
+    }
+
+    if (normalized.isAvailable !== undefined) {
+        normalized.isAvailable = String(normalized.isAvailable) === "true";
+    }
+
+    if (typeof normalized.skills === "string") {
+        try {
+            normalized.skills = JSON.parse(normalized.skills);
+        } catch {
+            normalized.skills = [normalized.skills];
+        }
+    }
+
+    return normalized as T;
+};
+
+const createServiceIntoDB = async (technicianId: string, payload: ICreateService, imageFile?: Express.Multer.File) => {
+    const data = normalizeServicePayload(payload);
     const technician = await prisma.user.findUnique({
         where: {
             id: technicianId,
@@ -33,14 +76,14 @@ const createServiceIntoDB = async (technicianId: string, payload: ICreateService
 
     await prisma.category.findUniqueOrThrow({
         where: {
-            id: payload.categoryId,
+            id: data.categoryId,
         },
     });
 
     const existingService = await prisma.service.findFirst({
         where: {
             technicianId: technician.technicianProfile.id,
-            title: payload.title,
+            title: data.title,
         },
     });
 
@@ -48,10 +91,21 @@ const createServiceIntoDB = async (technicianId: string, payload: ICreateService
         throw new SelfError("You already have a service with this title", httpStatus.CONFLICT);
     }
 
+    let serviceImage = data.serviceImage;
+    let serviceImagePublicId: string | undefined;
+
+    if (imageFile) {
+        const uploadedImage = await uploadFileToCloudinary(imageFile.buffer);
+        serviceImage = uploadedImage.secure_url;
+        serviceImagePublicId = uploadedImage.public_id;
+    }
+
     const service = await prisma.service.create({
         data: {
-            ...payload,
-            hourlyRate: payload.hourlyRate ?? payload.price,
+            ...data,
+            hourlyRate: data.hourlyRate ?? data.price,
+            serviceImage,
+            serviceImagePublicId,
             technicianId: technician.technicianProfile.id,
         },
     });
@@ -485,8 +539,9 @@ const getSingleService = async (serviceId: string) => {
 //     return service;
 // };
 
-const updateServiceFromDB = async (technicianId: string, serviceId: string, payload: IUpdateService) => {
-    const { categoryId, title, description, price, hourlyRate, duration, isAvailable, skills, experience, serviceImage } = payload;
+const updateServiceFromDB = async (technicianId: string, serviceId: string, payload: IUpdateService, imageFile?: Express.Multer.File) => {
+    const data = normalizeServicePayload(payload);
+    const { categoryId, title, description, price, hourlyRate, duration, isAvailable, skills, experience, serviceImage } = data;
 
     const existingService = await prisma.service.findUnique({
         where: {
@@ -534,6 +589,12 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
         }
     }
 
+    let uploadedImage: UploadApiResponse | undefined;
+
+    if (imageFile) {
+        uploadedImage = await uploadFileToCloudinary(imageFile.buffer);
+    }
+
     const result = await prisma.$transaction(async (tx) => {
         const updatedService = await tx.service.update({
             where: {
@@ -547,7 +608,8 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
                 hourlyRate,
                 duration,
                 isAvailable,
-                serviceImage
+                serviceImage: uploadedImage?.secure_url ?? serviceImage,
+                serviceImagePublicId: uploadedImage?.public_id ?? (serviceImage !== undefined ? null : undefined),
             },
         });
 
@@ -566,6 +628,10 @@ const updateServiceFromDB = async (technicianId: string, serviceId: string, payl
             technicianProfile: updatedTechnicianProfile,
         };
     });
+
+    if ((uploadedImage || serviceImage !== undefined) && existingService.serviceImagePublicId) {
+        await deleteFileFromCloudinary(existingService.serviceImagePublicId);
+    }
 
     return result;
 };
@@ -593,6 +659,8 @@ const deleteServiceFromDB = async (technicianId: string, serviceId: string) => {
             id: serviceId,
         },
     });
+
+    await deleteFileFromCloudinary(existingService.serviceImagePublicId);
 
     return deletedService;
 };

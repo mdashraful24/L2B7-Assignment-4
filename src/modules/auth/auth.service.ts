@@ -8,6 +8,7 @@ import { jwtUtils } from '../../utils/jwt';
 import { JwtPayload, SignOptions } from 'jsonwebtoken';
 import { TokenPayload } from 'google-auth-library';
 import { googleClient } from '../../lib/googleAuth';
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from '../../lib/cloudinary';
 import { AuthProvider, UserRole, UserStatus } from '../../../generated/prisma/enums';
 
 const registerUserIntoDB = async (payload: IUser) => {
@@ -405,6 +406,40 @@ const authRefreshTokenIntoDB = async (refreshToken: string) => {
     return { accessToken };
 };
 
+const uploadProfilePictureIntoDB = async (userId: string, buffer: Buffer) => {
+    const currentUser = await prisma.user.findUnique({
+        where: {
+            id: userId,
+        },
+        select: {
+            imagePublicId: true,
+        },
+    });
+
+    if (!currentUser) {
+        throw new SelfError("User not found", httpStatus.NOT_FOUND);
+    }
+
+    const uploadedImage = await uploadFileToCloudinary(buffer);
+
+    const updatedUser = await prisma.user.update({
+        where: {
+            id: userId,
+        },
+        data: {
+            imageUrl: uploadedImage.secure_url,
+            imagePublicId: uploadedImage.public_id,
+        },
+        omit: {
+            password: true,
+        },
+    });
+
+    await deleteFileFromCloudinary(currentUser.imagePublicId);
+
+    return updatedUser;
+};
+
 const getMeFromDB = async (userId: string) => {
     const user = await prisma.user.findUniqueOrThrow({
         where: {
@@ -513,6 +548,7 @@ export const authService = {
     loginUserIntoDB,
     googleLoginIntoDB,
     authRefreshTokenIntoDB,
+    uploadProfilePictureIntoDB,
     getMeFromDB,
     updateMeFromDB
 };

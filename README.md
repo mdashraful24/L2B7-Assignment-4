@@ -95,10 +95,21 @@ JWT_ACCESS_EXPIRES_IN=1h
 JWT_REFRESH_EXPIRES_IN=7d
 STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_WEBHOOK_SECRET=your_stripe_webhook_secret
+CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
+CLOUDINARY_API_KEY=your_cloudinary_api_key
+CLOUDINARY_API_SECRET=your_cloudinary_api_secret
 APP_URL=http://localhost:3000
 ADMIN_EMAIL=admin@fixitnow.com
 ADMIN_PASSWORD=Admin@1234
 ```
+
+## File Uploads
+
+Images are parsed with Multer (in-memory, 5 MB limit, image MIME types only) and stored on Cloudinary. The returned `secure_url` and `public_id` are saved with the related record.
+
+- `PATCH /api/auth/upload-profile-picture` — multipart field `profilePicture` (authenticated); replaces the user's current avatar and removes the old Cloudinary asset.
+- `POST /api/services` and `PATCH /api/services/:id` — multipart field `serviceImage` (technician only); sends the other service fields as multipart text fields alongside the file. Replacing the image removes the previous Cloudinary asset.
+- `POST /api/admin/categories` and `PATCH /api/admin/categories/:id` — multipart field `categoryImage` (admin only), stored as `Category.categoryImage`; replacing it removes the previous Cloudinary asset.
 
 ## API Documentation
 
@@ -149,6 +160,7 @@ Common error types include:
 
 ### Authentication
 - `POST /api/auth/*`
+- `PATCH /api/auth/upload-profile-picture`
 
 ### Technicians
 - `GET /api/technicians`

@@ -2,6 +2,7 @@ import { Router } from "express";
 import { authController } from "./auth.controller";
 import authProtected from "../../middlewares/authProtected";
 import { UserRole } from "../../../generated/prisma/enums";
+import { upload } from "../../lib/multer";
 
 const router = Router();
 
@@ -22,6 +23,12 @@ router.get("/me",
 router.put("/update/me",
     authProtected(UserRole.CUSTOMER, UserRole.ADMIN),
     authController.updateMe
+);
+
+router.patch("/upload-profile-picture",
+    authProtected(UserRole.CUSTOMER, UserRole.TECHNICIAN, UserRole.ADMIN),
+    upload.single("profilePicture"),
+    authController.uploadProfilePicture
 );
 
 

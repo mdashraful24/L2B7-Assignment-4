@@ -91,6 +91,23 @@ const authRefreshToken = catchAsyncUtil(async (req, res) => {
     });
 });
 
+const uploadProfilePicture = catchAsyncUtil(async (req, res) => {
+    const userId = req.user?.id as string;
+
+    if (!req.file) {
+        throw new SelfError("No file uploaded", httpStatus.BAD_REQUEST);
+    }
+
+    const result = await authService.uploadProfilePictureIntoDB(userId, req.file.buffer);
+
+    sendResponse(res, {
+        statusCode: httpStatus.OK,
+        success: true,
+        message: "Profile picture uploaded successfully",
+        data: result,
+    });
+});
+
 const getMe = catchAsyncUtil(async (req, res) => {
     const result = await authService.getMeFromDB(req.user?.id as string);
 
@@ -125,6 +142,7 @@ export const authController = {
     loginUser,
     googleLogin,
     authRefreshToken,
+    uploadProfilePicture,
     getMe,
     updateMe
 };

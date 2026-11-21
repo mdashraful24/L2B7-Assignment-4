@@ -1,14 +1,28 @@
+import type { UploadApiResponse } from 'cloudinary';
 import httpStatus from 'http-status';
 import { prisma } from "../../lib/prisma";
+import { deleteFileFromCloudinary, uploadFileToCloudinary } from "../../lib/cloudinary";
 import { SelfError } from "../../utils/errorResponse";
 import { IBookingQuery, ICategoryQuery, ICreateCategory, IGetUsersQuery, IUpdateCategory, IUpdateUserStatus } from "./admin.interface";
 import { BookingStatus, UserRole, UserStatus } from '../../../generated/prisma/client';
 import { BookingWhereInput, CategoryWhereInput, UserWhereInput } from '../../../generated/prisma/models';
 
-const createServiceCategoryIntoDB = async (payload: ICreateCategory) => {
+const normalizeCategoryPayload = <T extends ICreateCategory | IUpdateCategory>(payload: T): T => {
+    const normalized = { ...payload } as Record<string, unknown>;
+
+    if (normalized.isActive !== undefined) {
+        normalized.isActive = String(normalized.isActive) === "true";
+    }
+
+    return normalized as T;
+};
+
+const createServiceCategoryIntoDB = async (payload: ICreateCategory, imageFile?: Express.Multer.File) => {
+    const data = normalizeCategoryPayload(payload);
+
     const existingCategory = await prisma.category.findUnique({
         where: {
-            name: payload.name
+            name: data.name
         },
     });
 
@@ -16,9 +30,20 @@ const createServiceCategoryIntoDB = async (payload: ICreateCategory) => {
         throw new SelfError("Category already exists.", httpStatus.CONFLICT);
     }
 
+    let categoryImage = data.categoryImage;
+    let categoryImagePublicId: string | undefined;
+
+    if (imageFile) {
+        const uploadedImage = await uploadFileToCloudinary(imageFile.buffer);
+        categoryImage = uploadedImage.secure_url;
+        categoryImagePublicId = uploadedImage.public_id;
+    }
+
     const category = await prisma.category.create({
         data: {
-            ...payload
+            ...data,
+            categoryImage,
+            categoryImagePublicId,
         },
     });
 
@@ -99,8 +124,9 @@ const getAllServiceCategoriesFromDB = async (query: ICategoryQuery) => {
     };
 };
 
-const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategory) => {
-    const { name, description, icon, isActive } = payload;
+const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategory, imageFile?: Express.Multer.File) => {
+    const data = normalizeCategoryPayload(payload);
+    const { name, description, icon, categoryImage, isActive } = data;
 
     const category = await prisma.category.findUnique({
         where: { id },
@@ -114,10 +140,11 @@ const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategor
     //     throw new SelfError(`This category is already ${isActive ? "active" : "inactive"}.`, httpStatus.CONFLICT);
     // }
 
-    const noChanges =
+    const noChanges = !imageFile &&
         (name === undefined || name === category.name) &&
         (description === undefined || description === category.description) &&
         (icon === undefined || icon === category.icon) &&
+        (categoryImage === undefined || categoryImage === category.categoryImage) &&
         (isActive === undefined || isActive === category.isActive);
 
     if (noChanges) {
@@ -143,6 +170,12 @@ const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategor
         }
     }
 
+    let uploadedImage: UploadApiResponse | undefined;
+
+    if (imageFile) {
+        uploadedImage = await uploadFileToCloudinary(imageFile.buffer);
+    }
+
     const updatedCategory = await prisma.category.update({
         where: { id },
         data: {
@@ -150,8 +183,14 @@ const updateServiceCategoriesFromDB = async (id: string, payload: IUpdateCategor
             description,
             icon,
             isActive,
+            categoryImage: uploadedImage?.secure_url ?? categoryImage,
+            categoryImagePublicId: uploadedImage?.public_id ?? (categoryImage !== undefined ? null : undefined),
         },
     });
+
+    if ((uploadedImage || categoryImage !== undefined) && category.categoryImagePublicId) {
+        await deleteFileFromCloudinary(category.categoryImagePublicId);
+    }
 
     return updatedCategory;
 };

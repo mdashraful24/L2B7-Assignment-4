@@ -7,7 +7,7 @@ import { SelfError } from '../../utils/errorResponse';
 const createService = catchAsyncUtil(async (req, res) => {
     const technicianId = req.user?.id;
 
-    const result = await serviceServices.createServiceIntoDB(technicianId as string, req.body);
+    const result = await serviceServices.createServiceIntoDB(technicianId as string, req.body, req.file);
 
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
@@ -70,7 +70,7 @@ const updatedService = catchAsyncUtil(async(req, res)=>{
         throw new SelfError("Service ID is required", httpStatus.BAD_REQUEST);
     }
 
-    const result = await serviceServices.updateServiceFromDB(technicianId, id as string, req.body);
+    const result = await serviceServices.updateServiceFromDB(technicianId, id as string, req.body, req.file);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,

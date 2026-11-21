@@ -4,7 +4,7 @@ import { sendResponse } from "../../utils/sendResponse";
 import { adminServices } from "./admin.service";
 
 const createServiceCategory = catchAsyncUtil(async (req, res) => {
-    const result = await adminServices.createServiceCategoryIntoDB(req.body);
+    const result = await adminServices.createServiceCategoryIntoDB(req.body, req.file);
 
     sendResponse(res, {
         statusCode: httpStatus.CREATED,
@@ -29,7 +29,7 @@ const getAllServiceCategories = catchAsyncUtil(async (req, res) => {
 const updateServiceCategories = catchAsyncUtil(async (req, res) => {
     const { id } = req.params;
 
-    const result = await adminServices.updateServiceCategoriesFromDB(id as string, req.body);
+    const result = await adminServices.updateServiceCategoriesFromDB(id as string, req.body, req.file);
 
     sendResponse(res, {
         statusCode: httpStatus.OK,
