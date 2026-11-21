@@ -13,8 +13,10 @@ async function main() {
         await prisma.$connect();
         logger.info("Connected to the database successfully.");
 
-        await seed();
-        logger.info("Database seeding completed.");
+        const seeded = await seed();
+        if (seeded) {
+            logger.info("Database seeding completed.");
+        }
 
         await cloudinary.api.ping();
         logger.info("Cloudinary configured successfully.");

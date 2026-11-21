@@ -263,8 +263,63 @@ export const seedServices = async () => {
     logger.info(`Seeded ${seededCount} services.`);
 };
 
+const getSeedState = async () => {
+    const categoryNames = categoryData.map((category) => category.name);
+    const serviceTitles = serviceData.map((service) => service.title);
+
+    const [categoryCount, user, technician] = await Promise.all([
+        prisma.category.count({ where: { name: { in: categoryNames } } }),
+        prisma.user.findUnique({
+            where: { email: config.seed.technicianEmail },
+            select: { id: true },
+        }),
+        prisma.technicianProfile.findFirst({
+            where: { user: { email: config.seed.technicianEmail } },
+            select: { id: true },
+        }),
+    ]);
+
+    const serviceCount = technician
+        ? await prisma.service.count({
+            where: {
+                technicianId: technician.id,
+                title: { in: serviceTitles },
+            },
+        })
+        : 0;
+
+    return {
+        categories: categoryCount === categoryNames.length,
+        technician: Boolean(user && technician),
+        services: serviceCount === serviceTitles.length,
+    };
+};
+
 export const seed = async () => {
-    await seedCategories();
-    await seedDemoTechnician();
-    await seedServices();
+    const seedState = await getSeedState();
+
+    if (seedState.categories && seedState.technician && seedState.services) {
+        logger.info("Seed data already exists. Skipping database seeding.");
+        return false;
+    }
+
+    if (seedState.categories) {
+        logger.info("Categories already exist. Skipping category seed.");
+    } else {
+        await seedCategories();
+    }
+
+    if (seedState.technician) {
+        logger.info("Demo technician already exists. Skipping technician seed.");
+    } else {
+        await seedDemoTechnician();
+    }
+
+    if (seedState.services) {
+        logger.info("Services already exist. Skipping service seed.");
+    } else {
+        await seedServices();
+    }
+
+    return true;
 };
