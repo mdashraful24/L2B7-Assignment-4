@@ -13,10 +13,10 @@ async function main() {
         await prisma.$connect();
         logger.info("Connected to the database successfully.");
 
-        const seeded = await seed();
-        if (seeded) {
-            logger.info("Database seeding completed.");
-        }
+        // const seeded = await seed();
+        // if (seeded) {
+        //     logger.info("Database seeding completed.");
+        // }
 
         await cloudinary.api.ping();
         logger.info("Cloudinary configured successfully.");
@@ -31,4 +31,8 @@ async function main() {
     }
 }
 
-main();
+if (!process.env.VERCEL) {
+    main();
+}
+
+export default app;
