@@ -1,6 +1,8 @@
 import app from "./app";
 import config from "./config";
+import logger from "./logger";
 import { prisma } from "./lib/prisma";
+import { cloudinary } from "./lib/cloudinary";
 
 // Project running port
 const PORT = config.port;
@@ -8,13 +10,16 @@ const PORT = config.port;
 async function main() {
     try {
         await prisma.$connect();
-        console.log("Connected to the database successfully.");
+        logger.info("Connected to the database successfully.");
+
+        await cloudinary.api.ping();
+        logger.info("Cloudinary configured successfully.");
 
         app.listen(PORT, () => {
-            console.log(`Server is running on port http://localhost:${PORT}`);
+            logger.info(`Server is running on port http://localhost:${PORT}`);
         });
     } catch (error) {
-        console.error("Error starting server:", error);
+        logger.error("Error starting server:", error);
         await prisma.$disconnect();
         process.exit(1);
     }

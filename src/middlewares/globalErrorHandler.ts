@@ -1,7 +1,61 @@
 import { ErrorRequestHandler } from 'express';
 import httpStatus from 'http-status';
+import multer from 'multer';
 import { SelfError } from '../utils/errorResponse';
 import { Prisma } from '../../generated/prisma/client';
+
+const handleMulterError = (error: multer.MulterError) => {
+    switch (error.code) {
+        case 'LIMIT_FILE_SIZE':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'File is too large. Maximum allowed size is 5MB.',
+                name: 'File Size Error',
+            };
+        case 'LIMIT_FILE_COUNT':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'Too many files uploaded.',
+                name: 'File Count Error',
+            };
+        case 'LIMIT_UNEXPECTED_FILE':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'Unexpected file field or too many files.',
+                name: 'Unexpected File Error',
+            };
+        case 'LIMIT_FIELD_KEY':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'Field name is too long.',
+                name: 'Upload Field Error',
+            };
+        case 'LIMIT_FIELD_VALUE':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'Field value is too long.',
+                name: 'Upload Field Error',
+            };
+        case 'LIMIT_FIELD_COUNT':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'Too many fields in the form.',
+                name: 'Upload Field Error',
+            };
+        case 'LIMIT_PART_COUNT':
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: 'Too many parts in the multipart form.',
+                name: 'Upload Part Error',
+            };
+        default:
+            return {
+                statusCode: httpStatus.BAD_REQUEST,
+                message: error.message,
+                name: 'File Upload Error',
+            };
+    }
+};
 
 const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
     // const err = errorHandle(error);
@@ -24,6 +78,13 @@ const globalErrorHandler: ErrorRequestHandler = (error, req, res, next) => {
         statusCode = error.statusCode || httpStatus.INTERNAL_SERVER_ERROR;
         errorMessage = error.message;
         errorName = "Application Error";
+    }
+    // Handle Multer Upload Errors
+    else if (error instanceof multer.MulterError) {
+        const multerError = handleMulterError(error);
+        statusCode = multerError.statusCode;
+        errorMessage = multerError.message;
+        errorName = multerError.name;
     }
     // Handle Prisma Validation Errors
     else if (error instanceof Prisma.PrismaClientValidationError) {

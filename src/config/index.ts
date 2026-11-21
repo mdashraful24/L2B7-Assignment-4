@@ -6,6 +6,7 @@ dotenv.config({
 });
 
 const config = {
+    nodeEnv: process.env.NODE_ENV,
     databaseUrl: process.env.DATABASE_URL,
     port: process.env.PORT,
     appUrl: process.env.APP_URL,
@@ -31,6 +32,12 @@ const config = {
         clientId: process.env.GOOGLE_CLIENT_ID!,
         // clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         // redirectUri: process.env.GOOGLE_REDIRECT_URI!
+    },
+
+    cloudinary: {
+        cloudName: process.env.CLOUDINARY_CLOUD_NAME!,
+        apiKey: process.env.CLOUDINARY_API_KEY!,
+        apiSecret: process.env.CLOUDINARY_API_SECRET!
     }
 };
 
